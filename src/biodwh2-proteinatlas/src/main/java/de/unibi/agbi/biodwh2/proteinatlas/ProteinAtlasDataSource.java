@@ -10,7 +10,6 @@ import de.unibi.agbi.biodwh2.proteinatlas.etl.ProteinAtlasParser;
 import de.unibi.agbi.biodwh2.proteinatlas.etl.ProteinAtlasUpdater;
 import de.unibi.agbi.biodwh2.proteinatlas.model.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 

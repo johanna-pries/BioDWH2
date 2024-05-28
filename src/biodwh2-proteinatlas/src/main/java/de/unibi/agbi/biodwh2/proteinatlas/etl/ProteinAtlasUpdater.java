@@ -1,10 +1,12 @@
 package de.unibi.agbi.biodwh2.proteinatlas.etl;
 
 import de.unibi.agbi.biodwh2.core.Workspace;
-import de.unibi.agbi.biodwh2.core.etl.MultiFileFTPWebUpdater;
+import de.unibi.agbi.biodwh2.core.etl.Updater;
+import de.unibi.agbi.biodwh2.core.exceptions.UpdaterException;
+import de.unibi.agbi.biodwh2.core.model.Version;
 import de.unibi.agbi.biodwh2.proteinatlas.ProteinAtlasDataSource;
 
-public class ProteinAtlasUpdater extends MultiFileFTPWebUpdater<ProteinAtlasDataSource> {
+public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
     static final String[] FILE_NAMES = {
             "normal_tissue.tsv.zip", "pathology.tsv.zip", "subcellular_location.tsv.zip", "rna_tissue_consensus.tsv.zip", "rna_tissue_hpa.tsv.zip",
             "rna_tissue_hpa_description.tsv.zip", "rna_brain_hpa.tsv.zip", "rna_pfc_brain_hpa.tsv.zip", "rna_tissue_gtex.tsv.zip",
@@ -21,15 +23,20 @@ public class ProteinAtlasUpdater extends MultiFileFTPWebUpdater<ProteinAtlasData
         super(dataSource);
     }
 
-    // WIP
     @Override
-    protected String getFTPIndexUrl() {
-        return "https://www.proteinatlas.org/about/download/";
+    protected Version getNewestVersion(final Workspace workspace) {
+        return new Version(2023, 6, 19);
     }
 
-    // WIP
     @Override
-    protected String[] getFilePaths(final Workspace workspace) {
-        return null;
+    protected boolean tryUpdateFiles(final Workspace workspace) throws UpdaterException {
+        for (final String fileName : FILE_NAMES)
+            downloadFileAsBrowser(workspace, "https://www.proteinatlas.org/download/" + fileName, fileName);
+        return true;
+    }
+
+    @Override
+    protected String[] expectedFileNames() {
+        return FILE_NAMES;
     }
 }

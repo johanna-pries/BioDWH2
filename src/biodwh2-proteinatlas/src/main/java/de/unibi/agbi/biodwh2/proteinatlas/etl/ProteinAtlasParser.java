@@ -25,7 +25,6 @@ public class ProteinAtlasParser  extends Parser<ProteinAtlasDataSource> {
         super(dataSource);
     }
 
-    // WIP
     @Override
     public boolean parse(final Workspace workspace) throws ParserException {
         for (final String filePath : ProteinAtlasUpdater.FILE_NAMES)
