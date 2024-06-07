@@ -1,0 +1,13 @@
+{
+  "version" : 1,
+  "creationDateTime" : "2024-06-07T11:18:13.7342478",
+  "dataSourceIds" : ["ProteinAtlas"],
+  "globalProperties" : {
+    "speciesFilter" : [ ]
+  },
+  "dataSourceProperties": {
+    "CancerDrugsDB": { "forceExport": true }
+  },
+  "skipGraphMLExport" : false,
+  "skipMetaGraphGeneration" : false
+}

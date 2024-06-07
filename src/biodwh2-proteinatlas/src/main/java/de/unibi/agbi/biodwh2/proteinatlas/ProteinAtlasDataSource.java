@@ -10,7 +10,6 @@ import de.unibi.agbi.biodwh2.proteinatlas.etl.ProteinAtlasParser;
 import de.unibi.agbi.biodwh2.proteinatlas.etl.ProteinAtlasUpdater;
 import de.unibi.agbi.biodwh2.proteinatlas.model.*;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class ProteinAtlasDataSource extends DataSource {
@@ -35,6 +34,8 @@ public class ProteinAtlasDataSource extends DataSource {
     public List<RnaPigBrainSampleHpa> rnaPigBrainSampleHpas;
     public List<RnaMouseBrainSampleHpa> rnaMouseBrainSampleHpas;
     public List<RnaMouseBrainAllen> rnaMouseBrainAllens;
+    public List<RnaMouseBrainHpa> rnaMouseBrainHpas;
+    public List<RnaMouseBrainMouseSample> rnaMouseBrainMouseSamples;
     public List<RnaImmuneCell> rnaImmuneCells;
     public List<RnaImmuneCellSample> rnaImmuneCellSamples;
     public List<RnaImmuneCellSampleTpmM> rnaImmuneCellSampleTpmMs;
@@ -44,13 +45,13 @@ public class ProteinAtlasDataSource extends DataSource {
     public List<RnaCelline> rnaCellines;
     public List<RnaCellineDescription> rnaCellineDescriptions;
     public List<RnaCancerSample> rnaCancerSamples;
+    // delete?
     public List<TranscriptRnaTissue> transcriptRnaTissues;
     public List<TranscriptRnaBrain> transcriptRnaBrains;
     public List<TranscriptRnaGtexRetina> transcriptRnaGtexretinas;
     public List<TranscriptRnaBloodcells> transcriptRnaBloodcells;
     public List<TranscriptRnaPigBrain> transcriptRnaPigbrains;
     public List<TranscriptRnaMouseBrain> transcriptRnaMousebrains;
-    public HashMap<String, List<Pathway>> pathways = new HashMap<>();
     public List<Proteinatlas> proteinatlas;
 
     @Override
@@ -120,6 +121,8 @@ public class ProteinAtlasDataSource extends DataSource {
         rnaPigBrainHpas = null;
         rnaPigBrainSampleHpas = null;
         rnaMouseBrainSampleHpas = null;
+        rnaMouseBrainHpas = null;
+        rnaMouseBrainMouseSamples = null;
         rnaImmuneCells = null;
         rnaImmuneCellSamples = null;
         rnaImmuneCellSampleTpmMs = null;
@@ -129,13 +132,13 @@ public class ProteinAtlasDataSource extends DataSource {
         rnaCellines = null;
         rnaCellineDescriptions = null;
         rnaCancerSamples = null;
+        // delete?
         transcriptRnaTissues = null;
         transcriptRnaBrains = null;
         transcriptRnaGtexretinas = null;
         transcriptRnaBloodcells = null;
         transcriptRnaPigbrains = null;
         transcriptRnaMousebrains = null;
-        pathways = null;
         proteinatlas = null;
     }
 }
