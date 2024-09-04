@@ -52,6 +52,8 @@ public class ProteinAtlasParser  extends Parser<ProteinAtlasDataSource> {
             case "normal_tissue.tsv":
                 dataSource.normalTissues = parseTSV(stream, NormalTissue.class);
                 break;
+            // FIXME: Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+            /*
             case "pathology.tsv":
                 dataSource.pathologies = parseTSV(stream, Pathology.class);
                 break;
@@ -88,12 +90,6 @@ public class ProteinAtlasParser  extends Parser<ProteinAtlasDataSource> {
             case "rna_single_cell_cluster_description.tsv":
                 dataSource.rnaSingleCellClusterDescriptions = parseTSV(stream, RnaSingleCellClusterDescription.class);
                 break;
-            // delete?
-            /*
-            case "rna_single_cell_read_count.tsv":
-                dataSource.rnaSingleCellReadCounts = parseTSV(stream, RnaSingleCellReadCount.class);
-                break;
-            */
             case "rna_brain_gtex.tsv":
                 dataSource.rnaBrainGtexes = parseTSV(stream, RnaBrainGtex.class);
                 break;
@@ -144,7 +140,9 @@ public class ProteinAtlasParser  extends Parser<ProteinAtlasDataSource> {
                 break;
             case "rna_cancer_sample.tsv":
                 dataSource.rnaCancerSamples = parseTSV(stream, RnaCancerSample.class);
-                break;
+                break;*/
+            
+            // TODO: do this at the end
             /*
             case "transcript_rna_tissue.tsv":
                 dataSource.transcriptRnaTissues = parseTSV(stream, TranscriptRnaTissue.class);

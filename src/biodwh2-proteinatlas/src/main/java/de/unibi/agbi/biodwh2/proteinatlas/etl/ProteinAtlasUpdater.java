@@ -8,7 +8,8 @@ import de.unibi.agbi.biodwh2.proteinatlas.ProteinAtlasDataSource;
 
 public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
 
-    // "rna_single_cell_read_count.zip", "transcript_rna_tissue.tsv.zip", "transcript_rna_brain.tsv.zip",
+    // TODO: do this at the end
+    // "transcript_rna_tissue.tsv.zip", "transcript_rna_brain.tsv.zip",
     // "transcript_rna_gtexretina.tsv.zip", "transcript_rna_immunecells.tsv.zip","transcript_rna_pigbrain.tsv.zip",
     // "transcript_rna_mousebrain.tsv.zip"
 

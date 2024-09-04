@@ -6,7 +6,7 @@
     "speciesFilter" : [ ]
   },
   "dataSourceProperties": {
-    "CancerDrugsDB": { "forceExport": true }
+    "ProteinAtlas": { "forceExport": true }
   },
   "skipGraphMLExport" : false,
   "skipMetaGraphGeneration" : false
