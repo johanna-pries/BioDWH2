@@ -52,14 +52,17 @@ public class ProteinAtlasParser  extends Parser<ProteinAtlasDataSource> {
             case "normal_tissue.tsv":
                 dataSource.normalTissues = parseTSV(stream, NormalTissue.class);
                 break;
-            // FIXME: Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
-            /*
             case "pathology.tsv":
                 dataSource.pathologies = parseTSV(stream, Pathology.class);
                 break;
-            case "subcellular_location.tsv":
-                dataSource.subcellularLocations = parseTSV(stream, SubcellularLocation.class);
+            case "rna_brain_fantom.tsv":
+                dataSource.rnaBrainFantoms = parseTSV(stream, RnaBrainFantom.class);
                 break;
+            case "rna_brain_gtex.tsv":
+                dataSource.rnaBrainGtexes = parseTSV(stream, RnaBrainGtex.class);
+                break;
+            // FIXME: Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+            /*
             case "rna_tissue_consensus.tsv":
                 dataSource.rnaTissueConsensuses = parseTSV(stream, RnaTissueConsensus.class);
                 break;
@@ -89,12 +92,6 @@ public class ProteinAtlasParser  extends Parser<ProteinAtlasDataSource> {
                 break;
             case "rna_single_cell_cluster_description.tsv":
                 dataSource.rnaSingleCellClusterDescriptions = parseTSV(stream, RnaSingleCellClusterDescription.class);
-                break;
-            case "rna_brain_gtex.tsv":
-                dataSource.rnaBrainGtexes = parseTSV(stream, RnaBrainGtex.class);
-                break;
-            case "rna_brain_fantom.tsv":
-                dataSource.rnaBrainFantoms = parseTSV(stream, RnaBrainFantom.class);
                 break;
             case "rna_pig_brain_hpa.tsv":
                 dataSource.rnaPigBrainHpas = parseTSV(stream, RnaPigBrainHpa.class);
@@ -140,7 +137,11 @@ public class ProteinAtlasParser  extends Parser<ProteinAtlasDataSource> {
                 break;
             case "rna_cancer_sample.tsv":
                 dataSource.rnaCancerSamples = parseTSV(stream, RnaCancerSample.class);
-                break;*/
+                break;
+            case "subcellular_location.tsv":
+                dataSource.subcellularLocations = parseTSV(stream, SubcellularLocation.class);
+                break;
+            */
             
             // TODO: do this at the end
             /*
@@ -163,9 +164,11 @@ public class ProteinAtlasParser  extends Parser<ProteinAtlasDataSource> {
                 dataSource.transcriptRnaMousebrains = parseTSV(stream, TranscriptRnaMouseBrain.class);
                 break;
             */
+            /*
             case "proteinatlas.tsv":
                 dataSource.proteinatlas = parseTSV(stream, Proteinatlas.class);
                 break;
+            */
         }
     }
 
