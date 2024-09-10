@@ -13,10 +13,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSource> {
     private static final Logger LOGGER = LogManager.getLogger(ProteinAtlasGraphExporter.class);
-    private static final String ID_PROPERTY = "id";
     private static final String GENE_LABEL = "gene";
     private static final String TISSUE_LABEL = "tissue";
     private static final String CELL_TYPE_LABEL = "cellType";
@@ -26,11 +26,9 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     private static final String CANCER_LABEL = "cancer";
     private static final String EXPRESSION_METRICS_LABEL = "expressionMetrics";
     private static final String BRAIN_REGION_LABEL = "brainRegion";
-
-    private static final String NORMAL_TISSUES_LABEL = "NormalTissues";
-    private static final String PATHOLOGIES_LABEL = "Pathologies";
-    private static final String RNA_BRAIN_FANTOMS_LABEL = "RnaBrainFantoms";
-    private static final String RNA_BRAIN_GTEXES_LABEL = "RnaBrainGtexes";
+    private static final String SUBREGION_LABEL = "subregion";
+    private static final String SAMPLE_LABEL = "sample";
+    private static final String CELL_LINE_LABEL = "cellLine";
 
     public ProteinAtlasGraphExporter(final ProteinAtlasDataSource dataSource) {
         super(dataSource);
@@ -43,57 +41,31 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
     @Override
     protected boolean exportGraph(final Workspace workspace, final Graph graph) throws ExporterException {
-        // WIP
-        graph.addIndex(IndexDescription.forNode(NORMAL_TISSUES_LABEL, ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode(PATHOLOGIES_LABEL, ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode(RNA_BRAIN_FANTOMS_LABEL, ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode(RNA_BRAIN_GTEXES_LABEL, ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        /*
-        gra0ph.addIndex(IndexDescription.forNode("RnaBrainHpas", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaCancerSamples", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaCellines", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaCellineCancers", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaCellineDescriptions", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaImmuneCells", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaImmuneCellMonacos", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaImmuneCellSamples", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaImmuneCellSampleTpmMs", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaImmuneCellSchmiedels", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaMouseBrainAllens", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaMouseBrainHpas", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaMouseBrainMouseSamples", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaMouseBrainSampleHpas", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaPfcBrainHpas", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaPigBrainHpas", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaPigBrainSampleHpas", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaSingleCellClusterDescriptions", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaSingleCellReadCounts", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaSingleCellTypes", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaSingleCellTypeTissues", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaTissueConsensuses", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaTissueFantoms", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaTissueGtexes", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaTissueHpas", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("RnaTissueHpaDescription", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("SubcellularLocations", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("TranscriptRnaBloodcells", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("TranscriptRnaBrains", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("TranscriptRnaGtexRetinas", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("TranscriptRnaMouseBrains", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("TranscriptRnaPigBrains", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode("TranscriptRnaTissues", ID_PROPERTY, IndexDescription.Type.UNIQUE));
-        */
+        graph.addIndex(IndexDescription.forNode(GENE_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(TISSUE_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(CELL_TYPE_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(EXPRESSION_DATA_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(EXPRESSION_DATA_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(EXPRESSION_LEVELS_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(PROGNOSTIC_DATA_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(CANCER_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(EXPRESSION_METRICS_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(BRAIN_REGION_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(SUBREGION_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(SAMPLE_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(CELL_LINE_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        // TODO: Add indices for nodes in remaining files here.
 
         addNormalTissues(graph, dataSource.normalTissues);
         addPathologies(graph, dataSource.pathologies);
         addRnaBrainFantoms(graph, dataSource.rnaBrainFantoms);
         addRnaBrainGtexes(graph, dataSource.rnaBrainGtexes);
-        /*
         addRnaBrainHpas(graph, dataSource.rnaBrainHpas);
         addRnaCancerSamples(graph, dataSource.rnaCancerSamples);
         addRnaCellines(graph, dataSource.rnaCellines);
         addRnaCellineCancers(graph, dataSource.rnaCellineCancers);
         addRnaCellineDescriptions(graph, dataSource.rnaCellineDescriptions);
+        /*
         addRnaImmuneCells(graph, dataSource.rnaImmuneCells);
         addRnaImmuneCellMonacos(graph, dataSource.rnaImmuneCellMonacos);
         addRnaImmuneCellSamples(graph, dataSource.rnaImmuneCellSamples);
@@ -127,6 +99,13 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         return true;
     }
 
+    private Node getOrCreateNode(final Graph graph, final String label, final String propertyKey, final String value) {
+        Node node = graph.findNode(label, value);
+        if (node == null)
+            node = graph.addNode(label, propertyKey, value);
+        return node;
+    }
+
     private void addNormalTissues(final Graph graph, final List<NormalTissue> normalTissues) {
         LOGGER.info("Add NormalTissues...");
         for (final NormalTissue normalTissue : normalTissues) {
@@ -135,10 +114,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     }
 
     private void addNormalTissue(final Graph graph, final NormalTissue normalTissue) {
-        final Node tissueNode = getOrCreateTissueNode(graph, normalTissue.tissue);
+        final Node tissueNode = getOrCreateNode(graph, TISSUE_LABEL, "name", normalTissue.tissue);
         final Node geneNode = getOrCreateGeneNode(graph, normalTissue.gene, normalTissue.geneName);
-        final Node cellTypeNode = getOrCreateCellTypeNode(graph, normalTissue.cellType);
-        final Node expressionDataNode = graph.addNode(EXPRESSION_DATA_LABEL, "level", normalTissue.level, "reliability", normalTissue.reliability);
+        final Node cellTypeNode = getOrCreateNode(graph, CELL_TYPE_LABEL, "name", normalTissue.cellType);
+        final Node expressionDataNode = graph.addNode(EXPRESSION_DATA_LABEL, "level", normalTissue.level,
+                                                      "reliability", normalTissue.reliability);
 
         graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
         graph.addEdge(tissueNode, geneNode, "CONTAINS_EXPRESSED");
@@ -149,15 +129,12 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         graph.addEdge(cellTypeNode, expressionDataNode, "ASSOCIATED_WITH");
     }
 
-    private Node getOrCreateTissueNode(final Graph graph, final String tissueName) {
-        Node node = graph.findNode(TISSUE_LABEL, tissueName);
-        if (node == null)
-            node = graph.addNode(TISSUE_LABEL, "name", tissueName);
-        return node;
-    }
-
     private Node getOrCreateGeneNode(final Graph graph, final String geneId, final String geneName) {
         Node node = graph.findNode(GENE_LABEL, ID_KEY, geneId);
+        if (node != null && !node.hasProperty("name")) {
+            node.setProperty("name", geneName);
+            graph.update(node);
+        }
         if (node == null)
             node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName);
         return node;
@@ -167,13 +144,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         Node node = graph.findNode(GENE_LABEL, ID_KEY, geneId);
         if (node == null)
             node = graph.addNode(GENE_LABEL, ID_KEY, geneId);
-        return node;
-    }
-
-    private Node getOrCreateCellTypeNode(final Graph graph, final String cellTypeName) {
-        Node node = graph.findNode(CELL_TYPE_LABEL, cellTypeName);
-        if (node == null)
-            node = graph.addNode(CELL_TYPE_LABEL, "name", cellTypeName);
         return node;
     }
 
@@ -187,9 +157,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
     private void addPathology(final Graph graph, final Pathology pathology) {
         final Node geneNode = getOrCreateGeneNode(graph, pathology.gene, pathology.geneName);
-        final Node cancerNode = getOrCreateCancerNode(graph, pathology.cancer);
-        final Node expressionLevelsNode = graph.addNode(EXPRESSION_LEVELS_LABEL, "high", pathology.high, "medium", pathology.medium, "low", pathology.low, "notDetected", pathology.notDetected);
-        final Node prognosticDataNode = graph.addNode(PROGNOSTIC_DATA_LABEL, "prognosticFavorable", pathology.prognosticFavorable, "unprognosticFavorable", pathology.unprognosticFavorable, "prognosticUnfavorable", pathology.prognosticUnfavorable, "unprognosticUnfavorable", pathology.unprognosticUnfavorable);
+        final Node cancerNode = getOrCreateNode(graph, CANCER_LABEL, "type", pathology.cancer);
+        final Node expressionLevelsNode = graph.addNode(EXPRESSION_LEVELS_LABEL, "high", pathology.high,
+                                                        "medium", pathology.medium, "low",
+                                                        pathology.low, "notDetected", pathology.notDetected);
+        final Node prognosticDataNode = graph.addNode(PROGNOSTIC_DATA_LABEL, "prognosticFavorable",
+                                                      pathology.prognosticFavorable, "unprognosticFavorable",
+                                                      pathology.unprognosticFavorable, "prognosticUnfavorable",
+                                                      pathology.prognosticUnfavorable, "unprognosticUnfavorable",
+                                                      pathology.unprognosticUnfavorable);
 
         graph.addEdge(geneNode, cancerNode, "ASSOCIATED_WITH");
         graph.addEdge(cancerNode, geneNode, "ASSOCIATED_WITH");
@@ -197,13 +173,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         graph.addEdge(cancerNode, expressionLevelsNode, "HAS_EXPRESSIONS_LEVELS");
         graph.addEdge(geneNode, prognosticDataNode, "HAS_PROGNOSTIC_DATA");
         graph.addEdge(cancerNode, prognosticDataNode, "HAS_PROGNOSTIC_DATA");
-    }
-
-    private Node getOrCreateCancerNode(final Graph graph, final String cancerType) {
-        Node node = graph.findNode(CANCER_LABEL, cancerType);
-        if (node == null)
-            node = graph.addNode(CANCER_LABEL, "type", cancerType);
-        return node;
     }
 
 
@@ -216,8 +185,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
     private void addRnaBrainFantom(final Graph graph, final RnaBrainFantom rnaBrainFantom) {
         final Node geneNode = getOrCreateGeneNode(graph, rnaBrainFantom.gene, rnaBrainFantom.geneName);
-        final Node brainRegionNode = getOrCreateBrainRegionNode(graph, rnaBrainFantom.brainRegion);
-        final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainFantom.tagsPerMillion, rnaBrainFantom.scaledTagsPerMillion, null, rnaBrainFantom.nTpm);
+        final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                     rnaBrainFantom.brainRegion);
+        final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainFantom.tagsPerMillion,
+                                                                       rnaBrainFantom.scaledTagsPerMillion, null,
+                                                                       rnaBrainFantom.nTpm, null);
 
         graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
         graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
@@ -225,19 +197,14 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
     }
 
-    private Node getOrCreateBrainRegionNode(final Graph graph, final String brainRegion) {
-        Node node = graph.findNode(BRAIN_REGION_LABEL, brainRegion);
-        if (node == null)
-            node = graph.addNode(BRAIN_REGION_LABEL, "name", brainRegion);
-        return node;
-    }
-
-    private Node createExpressionMetricsNode(final Graph graph, final Float tpm, final Float scaledTpm, final Float pTpm, final Float nTpm) {
+    private Node createExpressionMetricsNode(final Graph graph, final Float tpm, final Float scaledTpm,
+                                             final Float pTpm, final Float nTpm, final Float fpkm) {
         final NodeBuilder builder = graph.buildNode().withLabel(EXPRESSION_METRICS_LABEL);
         builder.withPropertyIfNotNull("tpm", tpm);
         builder.withPropertyIfNotNull("scaledTpm", scaledTpm);
         builder.withPropertyIfNotNull("pTpm", pTpm);
         builder.withPropertyIfNotNull("nTpm", nTpm);
+        builder.withPropertyIfNotNull("fpkm", fpkm);
         return builder.build();
     }
 
@@ -251,8 +218,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
     private void addRnaBrainGtex(final Graph graph, final RnaBrainGtex rnaBrainGtex) {
         final Node geneNode = getOrCreateGeneNode(graph, rnaBrainGtex.gene, rnaBrainGtex.geneName);
-        final Node brainRegionNode = getOrCreateBrainRegionNode(graph, rnaBrainGtex.brainRegion);
-        final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainGtex.tpm, null, rnaBrainGtex.pTpm, rnaBrainGtex.nTpm);
+        final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                     rnaBrainGtex.brainRegion);
+        final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainGtex.tpm, null,
+                                                                       rnaBrainGtex.pTpm, rnaBrainGtex.nTpm, null);
 
         graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
         graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
@@ -262,24 +231,149 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
 
     private void addRnaBrainHpas(final Graph graph, final List<RnaBrainHpa> rnaBrainHpas) {
-
+        LOGGER.info("Add RnaBrainHpas...");
+        for (final RnaBrainHpa rnaBrainHpa: rnaBrainHpas) {
+            addRnaBrainHpa(graph, rnaBrainHpa);
+        }
     }
+
+    private void addRnaBrainHpa(final Graph graph, final RnaBrainHpa rnaBrainHpa) {
+        final Node geneNode = getOrCreateGeneNode(graph, rnaBrainHpa.gene, rnaBrainHpa.geneName);
+        final Node subregionNode = getOrCreateNode(graph, SUBREGION_LABEL, "name", rnaBrainHpa.subregion);
+        final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainHpa.tpm, null,
+                                                                       rnaBrainHpa.pTpm, rnaBrainHpa.nTpm, null);
+
+        graph.addEdge(geneNode, subregionNode, "EXPRESSED_IN");
+        graph.addEdge(subregionNode, geneNode, "CONTAINS_EXPRESSED");
+        graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        graph.addEdge(subregionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+    }
+
 
     private void addRnaCancerSamples(final Graph graph, final List<RnaCancerSample> rnaCancerSamples) {
-
+        LOGGER.info("Add RnaCancerSamples...");
+        for (final RnaCancerSample rnaCancerSample: rnaCancerSamples) {
+            addRnaCancerSample(graph, rnaCancerSample);
+        }
     }
+
+    private void addRnaCancerSample(final Graph graph, final RnaCancerSample rnaCancerSample) {
+        final Node geneNode = getOrCreateGeneNode(graph, rnaCancerSample.gene);
+        final Node sampleNode = getOrCreateNode(graph, SAMPLE_LABEL, "id", rnaCancerSample.sample);
+        final Node cancerNode = getOrCreateNode(graph, CANCER_LABEL, "type", rnaCancerSample.cancer);
+        final Node expressionMetricsNode = createExpressionMetricsNode(graph, null, null, null,
+                                                                       null, rnaCancerSample.fpkm);
+
+        graph.addEdge(geneNode, sampleNode, "EXPRESSED_IN");
+        graph.addEdge(sampleNode, geneNode, "CONTAINS_EXPRESSED");
+        graph.addEdge(sampleNode, cancerNode, "HAS_CANCER_TYPE");
+        graph.addEdge(sampleNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+    }
+
 
     private void addRnaCellines(final Graph graph, final List<RnaCelline> rnaCellines) {
-
+        LOGGER.info("Add RnaCellines...");
+        for (final RnaCelline rnaCelline: rnaCellines) {
+            addRnaCelline(graph, rnaCelline);
+        }
     }
+
+    private void addRnaCelline(final Graph graph, final RnaCelline rnaCelline) {
+        final Node geneNode = getOrCreateGeneNode(graph, rnaCelline.gene, rnaCelline.geneName);
+        final Node cellLineNode = getOrCreateCellLineNode(graph, rnaCelline.cellLine, null, null,
+                                                          null, null, null,
+                                                          null);
+        final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaCelline.tpm, null,
+                                                                       rnaCelline.pTpm, rnaCelline.nTpm, null);
+
+        graph.addEdge(geneNode, cellLineNode, "EXPRESSED_IN");
+        graph.addEdge(cellLineNode, geneNode, "CONTAINS_EXPRESSED");
+        graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        graph.addEdge(cellLineNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+    }
+
+    private Node getOrCreateCellLineNode(final Graph graph, final String id, final String cellosaurusId,
+                                         final String diseaseType, final String diseaseSubtype,
+                                         final String patientData, final String primaryOrMetastasis,
+                                         final String sampleCollectionSite) {
+        Node node = graph.findNode(CELL_LINE_LABEL, ID_KEY, id);
+        if (node != null) {
+            node.setProperty("cellosaurusId", cellosaurusId);
+            node.setProperty("diseaseType", diseaseType);
+            node.setProperty("diseaseSubtype", diseaseSubtype);
+            // TODO: Split into two separate fields for age and gender.
+            node.setProperty("patientData", patientData);
+            if (Objects.equals(primaryOrMetastasis, "primary")) {
+                node.setProperty("primary", true);
+                node.setProperty("metastasis", false);
+            } else if (Objects.equals(primaryOrMetastasis, "metastasis")) {
+                node.setProperty("primary", false);
+                node.setProperty("metastasis", true);
+            } else {
+                node.setProperty("primary/metastasis", primaryOrMetastasis);
+            }
+            node.setProperty("collectionSite", sampleCollectionSite);
+            graph.update(node);
+        }
+        if (node == null) {
+            final NodeBuilder builder = graph.buildNode().withLabel(CELL_LINE_LABEL);
+            builder.withPropertyIfNotNull(ID_KEY, id);
+            builder.withPropertyIfNotNull("cellosaurusId", cellosaurusId);
+            builder.withPropertyIfNotNull("diseaseType", diseaseType);
+            builder.withPropertyIfNotNull("diseaseSubtype", diseaseSubtype);
+            // TODO: Split into two separate fields for age and gender.
+            builder.withPropertyIfNotNull("patientData", patientData);
+            if (Objects.equals(primaryOrMetastasis, "primary")) {
+                builder.withPropertyIfNotNull("primary", true);
+                builder.withPropertyIfNotNull("metastasis", false);
+            } else if (Objects.equals(primaryOrMetastasis, "metastasis")) {
+                builder.withPropertyIfNotNull("primary", false);
+                builder.withPropertyIfNotNull("metastasis", true);
+            } else {
+                builder.withPropertyIfNotNull("primary/metastasis", primaryOrMetastasis);
+            }
+            builder.withPropertyIfNotNull("collectionSite", sampleCollectionSite);
+            node = builder.build();
+        }
+        return node;
+    }
+
 
     private void addRnaCellineCancers(final Graph graph, final List<RnaCellineCancer> rnaCellineCancers) {
-
+        LOGGER.info("Add RnaCellineCancers...");
+        for (final RnaCellineCancer rnaCellineCancer: rnaCellineCancers) {
+            addRnaCellineCancer(graph, rnaCellineCancer);
+        }
     }
+
+    private void addRnaCellineCancer(final Graph graph, final RnaCellineCancer rnaCellineCancer) {
+        final Node geneNode = getOrCreateGeneNode(graph, rnaCellineCancer.gene);
+        final Node cancerNode = getOrCreateNode(graph, CANCER_LABEL, "type", rnaCellineCancer.cancer);
+        final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaCellineCancer.tpm, null,
+                                                                       rnaCellineCancer.pTpm, rnaCellineCancer.nTpm,
+                                                                       null);
+
+        graph.addEdge(geneNode, cancerNode, "EXPRESSED_IN");
+        graph.addEdge(cancerNode, geneNode, "CONTAINS_EXPRESSED");
+        graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        graph.addEdge(cancerNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+    }
+
 
     private void addRnaCellineDescriptions(final Graph graph, final List<RnaCellineDescription> rnaCellineDescriptions) {
-
+        LOGGER.info("Add RnaCellineDescriptions...");
+        for (final RnaCellineDescription rnaCellineDescription: rnaCellineDescriptions) {
+            addRnaCellineDescription(graph, rnaCellineDescription);
+        }
     }
+
+    private void addRnaCellineDescription(final Graph graph, final RnaCellineDescription rnaCellineDescription) {
+        getOrCreateCellLineNode(graph, rnaCellineDescription.cellLine, rnaCellineDescription.cellosaurusId,
+                                rnaCellineDescription.disease, rnaCellineDescription.diseaseSubtype,
+                                rnaCellineDescription.patient, rnaCellineDescription.primaryMetastasis,
+                                rnaCellineDescription.sampleCollectionSite);
+    }
+
 
     private void addRnaImmuneCells(final Graph graph, final List<RnaImmuneCell> rnaImmuneCells) {
 
