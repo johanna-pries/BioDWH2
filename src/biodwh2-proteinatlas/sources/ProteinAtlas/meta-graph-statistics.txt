@@ -1,0 +1,36 @@
+Meta graph statistics [5721670 nodes across 9 labels, 12600516 edges across 8 labels]
++----------+--------------------+
+| Count    | Node label         |
++----------+--------------------+
+| 449644   | brainRegion        |
+| 403240   | cancer             |
+| 1197500  | cellType           |
+| 1197500  | expressionData     |
+| 403240   | expressionLevels   |
+| 449644   | expressionMetrics  |
+| 20162    | gene               |
+| 403240   | prognosticData     |
+| 1197500  | tissue             |
++----------+--------------------+
+
++----------+--------------------------------------------------------------+
+| Count    | Edge relationship                                            |
++----------+--------------------------------------------------------------+
+| 403240   | (cancer)-[ASSOCIATED_WITH]->(gene)                           |
+| 1197500  | (cellType)-[ASSOCIATED_WITH]->(expressionData)               |
+| 403240   | (gene)-[ASSOCIATED_WITH]->(cancer)                           |
+| 1197500  | (gene)-[ASSOCIATED_WITH]->(expressionData)                   |
+| 1197500  | (tissue)-[ASSOCIATED_WITH]->(expressionData)                 |
+| 1197500  | (cellType)-[CONTAINED_IN]->(tissue)                          |
+| 449644   | (brainRegion)-[CONTAINS_EXPRESSED]->(gene)                   |
+| 1197500  | (tissue)-[CONTAINS_EXPRESSED]->(gene)                        |
+| 1197500  | (tissue)-[CONTAINS]->(cellType)                              |
+| 449644   | (gene)-[EXPRESSED_IN]->(brainRegion)                         |
+| 1197500  | (gene)-[EXPRESSED_IN]->(tissue)                              |
+| 403240   | (cancer)-[HAS_EXPRESSIONS_LEVELS]->(expressionLevels)        |
+| 403240   | (gene)-[HAS_EXPRESSIONS_LEVELS]->(expressionLevels)          |
+| 449644   | (brainRegion)-[HAS_EXPRESSION_METRICS]->(expressionMetrics)  |
+| 449644   | (gene)-[HAS_EXPRESSION_METRICS]->(expressionMetrics)         |
+| 403240   | (cancer)-[HAS_PROGNOSTIC_DATA]->(prognosticData)             |
+| 403240   | (gene)-[HAS_PROGNOSTIC_DATA]->(prognosticData)               |
++----------+--------------------------------------------------------------+
