@@ -26,11 +26,12 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     private static final String CANCER_LABEL = "cancer";
     private static final String EXPRESSION_METRICS_LABEL = "expressionMetrics";
     private static final String BRAIN_REGION_LABEL = "brainRegion";
-    private static final String SUBREGION_LABEL = "subregion";
     private static final String SAMPLE_LABEL = "sample";
     private static final String CELL_LINE_LABEL = "cellLine";
     private static final String IMMUNE_CELL_LABEL = "immuneCell";
     private static final String DONOR_LABEL = "donor";
+    private static final String MOUSE_DATA_LABEL = "mouseData";
+    private static final String PIG_DATA_LABEL = "pigData";
 
     public ProteinAtlasGraphExporter(final ProteinAtlasDataSource dataSource) {
         super(dataSource);
@@ -53,11 +54,12 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         graph.addIndex(IndexDescription.forNode(CANCER_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(EXPRESSION_METRICS_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(BRAIN_REGION_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
-        graph.addIndex(IndexDescription.forNode(SUBREGION_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(SAMPLE_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(CELL_LINE_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(IMMUNE_CELL_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(DONOR_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(MOUSE_DATA_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(PIG_DATA_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         // TODO: Add indices for nodes in remaining files here.
 
         addNormalTissues(graph, dataSource.normalTissues);
@@ -74,7 +76,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         addRnaImmuneCellSamples(graph, dataSource.rnaImmuneCellSamples);
         // TODO: addRnaImmuneCellSampleTpmMs(graph, dataSource.rnaImmuneCellSampleTpmMs);
         addRnaImmuneCellSchmiedels(graph, dataSource.rnaImmuneCellSchmiedels);
-        /*
         addRnaMouseBrainAllens(graph, dataSource.rnaMouseBrainAllens);
         addRnaMouseBrainHpas(graph, dataSource.rnaMouseBrainHpas);
         addRnaMouseBrainMouseSamples(graph, dataSource.rnaMouseBrainMouseSamples);
@@ -82,8 +83,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         addRnaPfcBrainHpas(graph, dataSource.rnaPfcBrainHpas);
         addRnaPigBrainHpas(graph, dataSource.rnaPigBrainHpas);
         addRnaPigBrainSampleHpas(graph, dataSource.rnaPigBrainSampleHpas);
+        /*
         addRnaSingleCellClusterDescriptions(graph, dataSource.rnaSingleCellClusterDescriptions);
-        addRnaSingleCellReadCounts(graph, dataSource.rnaSingleCellReadCounts);
         addRnaSingleCellTypes(graph, dataSource.rnaSingleCellTypes);
         addRnaSingleCellTypeTissues(graph, dataSource.rnaSingleCellTypeTissues);
         addRnaTissueConsensuses(graph, dataSource.rnaTissueConsensuses);
@@ -108,9 +109,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private Node getOrCreateNode(final Graph graph, final String label, final String propertyKey, final String value) {
-        Node node = graph.findNode(label, value);
-        if (node == null)
+        Node node = graph.findNode(label, propertyKey, value);
+        if (node == null) {
             node = graph.addNode(label, propertyKey, value);
+        }
         return node;
     }
 
@@ -120,8 +122,20 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             node.setProperty("name", geneName);
             graph.update(node);
         }
-        if (node == null)
-            node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName);
+        if (node == null) {
+            if (geneId.contains("ENSG")) {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "species",
+                                     "Homo sapiens");
+            } else if (geneId.contains("ENSMUSG")) {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "species",
+                                     "Mus musculus");
+            } else if (geneId.contains("ENSSSCG")) {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "species",
+                                     "Sus scrofa");
+            } else {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName);
+            }
+        }
         return node;
     }
 
@@ -133,13 +147,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     }
 
     private Node createExpressionMetricsNode(final Graph graph, final Float tpm, final Float scaledTpm,
-                                             final Float pTpm, final Float nTpm, final Float fpkm) {
+                                             final Float pTpm, final Float nTpm, final Float fpkm,
+                                             final Float expressionEnergy) {
         final NodeBuilder builder = graph.buildNode().withLabel(EXPRESSION_METRICS_LABEL);
         builder.withPropertyIfNotNull("tpm", tpm);
         builder.withPropertyIfNotNull("scaledTpm", scaledTpm);
         builder.withPropertyIfNotNull("pTpm", pTpm);
         builder.withPropertyIfNotNull("nTpm", nTpm);
         builder.withPropertyIfNotNull("fpkm", fpkm);
+        builder.withPropertyIfNotNull("expressionsEnergy", expressionEnergy);
         return builder.build();
     }
 
@@ -246,7 +262,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                          rnaBrainFantom.brainRegion);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainFantom.tagsPerMillion,
                                                                            rnaBrainFantom.scaledTagsPerMillion, null,
-                                                                           rnaBrainFantom.nTpm, null);
+                                                                           rnaBrainFantom.nTpm, null, null);
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
             graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
@@ -263,7 +279,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                          rnaBrainGtex.brainRegion);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainGtex.tpm, null,
-                                                                           rnaBrainGtex.pTpm, rnaBrainGtex.nTpm, null);
+                                                                           rnaBrainGtex.pTpm, rnaBrainGtex.nTpm,
+                                                                           null, null);
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
             graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
@@ -277,9 +294,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         for (final RnaBrainHpa rnaBrainHpa: rnaBrainHpas) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaBrainHpa.gene, rnaBrainHpa.geneName);
-            final Node subregionNode = getOrCreateNode(graph, SUBREGION_LABEL, "name", rnaBrainHpa.subregion);
+            final Node subregionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name", rnaBrainHpa.subregion);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainHpa.tpm, null,
-                                                                           rnaBrainHpa.pTpm, rnaBrainHpa.nTpm, null);
+                                                                           rnaBrainHpa.pTpm, rnaBrainHpa.nTpm,
+                                                                           null, null);
 
             graph.addEdge(geneNode, subregionNode, "EXPRESSED_IN");
             graph.addEdge(subregionNode, geneNode, "CONTAINS_EXPRESSED");
@@ -296,7 +314,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node sampleNode = getOrCreateNode(graph, SAMPLE_LABEL, "id", rnaCancerSample.sample);
             final Node cancerNode = getOrCreateNode(graph, CANCER_LABEL, "type", rnaCancerSample.cancer);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, null, null, null,
-                                                                           null, rnaCancerSample.fpkm);
+                                                                           null, rnaCancerSample.fpkm, null);
 
             graph.addEdge(geneNode, sampleNode, "EXPRESSED_IN");
             graph.addEdge(sampleNode, geneNode, "CONTAINS_EXPRESSED");
@@ -314,7 +332,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                               null, null, null,
                                                               null);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaCelline.tpm, null,
-                                                                           rnaCelline.pTpm, rnaCelline.nTpm, null);
+                                                                           rnaCelline.pTpm, rnaCelline.nTpm, null,
+                                                                           null);
 
             graph.addEdge(geneNode, cellLineNode, "EXPRESSED_IN");
             graph.addEdge(cellLineNode, geneNode, "CONTAINS_EXPRESSED");
@@ -331,7 +350,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node cancerNode = getOrCreateNode(graph, CANCER_LABEL, "type", rnaCellineCancer.cancer);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaCellineCancer.tpm, null,
                                                                            rnaCellineCancer.pTpm, rnaCellineCancer.nTpm,
-                                                                           null);
+                                                                           null, null);
 
             graph.addEdge(geneNode, cancerNode, "EXPRESSED_IN");
             graph.addEdge(cancerNode, geneNode, "CONTAINS_EXPRESSED");
@@ -358,7 +377,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node geneNode = getOrCreateGeneNode(graph, rnaImmuneCell.gene, rnaImmuneCell.geneName);
             final Node immuneCellNode = getOrCreateNode(graph, IMMUNE_CELL_LABEL, "name", rnaImmuneCell.immuneCell);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaImmuneCell.tpm, null,
-                                                                           rnaImmuneCell.pTpm, rnaImmuneCell.nTpm, null);
+                                                                           rnaImmuneCell.pTpm, rnaImmuneCell.nTpm,
+                                                                           null, null);
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
             graph.addEdge(immuneCellNode, geneNode, "CONTAINS_EXPRESSED");
@@ -375,7 +395,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node immuneCellNode = getOrCreateNode(graph, IMMUNE_CELL_LABEL, "name",
                                                         rnaImmuneCellMonaco.immuneCell);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaImmuneCellMonaco.tpm, null,
-                                                                           rnaImmuneCellMonaco.pTpm, null, null);
+                                                                           rnaImmuneCellMonaco.pTpm, null,
+                                                                           null, null);
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
             graph.addEdge(immuneCellNode, geneNode, "CONTAINS_EXPRESSED");
@@ -396,7 +417,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node donorNode = graph.addNode(DONOR_LABEL, "name", rnaImmuneCellSample.donor);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaImmuneCellSample.tpm, null,
                                                                            rnaImmuneCellSample.pTpm, rnaImmuneCellSample.nTpm,
-                                                                           null);
+                                                                           null, null);
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
             graph.addEdge(immuneCellNode, geneNode, "CONTAINS_EXPRESSED");
@@ -421,7 +442,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node immuneCellNode = getOrCreateNode(graph, IMMUNE_CELL_LABEL, "name",
                                                         rnaImmuneCellSchmiedel.immuneCell);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaImmuneCellSchmiedel.tpm, null,
-                                                                           null, null, null);
+                                                                           null, null, null, null);
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
             graph.addEdge(immuneCellNode, geneNode, "CONTAINS_EXPRESSED");
@@ -431,39 +452,165 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     }
 
     private void addRnaMouseBrainAllens(final Graph graph, final List<RnaMouseBrainAllen> rnaMouseBrainAllens) {
+        LOGGER.info("Add RnaMouseBrainAllens...");
+        for (final RnaMouseBrainAllen rnaMouseBrainAllen: rnaMouseBrainAllens) {
 
+            final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainAllen.gene, rnaMouseBrainAllen.geneName);
+            final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                        rnaMouseBrainAllen.brainRegion);
+            final Node expressionMetricsNode = createExpressionMetricsNode(graph, null, null,
+                                                                           null, null, null,
+                                                                           rnaMouseBrainAllen.expressionEnergy);
+
+            graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
+            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
+            graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        }
     }
 
     private void addRnaMouseBrainHpas(final Graph graph, final List<RnaMouseBrainHpa> rnaMouseBrainHpas) {
+        LOGGER.info("Add RnaMouseBrainHpas...");
+        for (final RnaMouseBrainHpa rnaMouseBrainHpa : rnaMouseBrainHpas) {
 
+            final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainHpa.gene, rnaMouseBrainHpa.geneName);
+            final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                         rnaMouseBrainHpa.brainRegion);
+            final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaMouseBrainHpa.tpm, null,
+                                                                           rnaMouseBrainHpa.pTpm, rnaMouseBrainHpa.nTpm,
+                                                                           null, null);
+
+            graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
+            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
+            graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        }
     }
 
     private void addRnaMouseBrainMouseSamples(final Graph graph, final List<RnaMouseBrainMouseSample> rnaMouseBrainMouseSamples) {
+        LOGGER.info("Add RnaMouseBrainMouseSamples...");
+        for (final RnaMouseBrainMouseSample rnaMouseBrainMouseSample : rnaMouseBrainMouseSamples) {
 
+            final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainMouseSample.ensmusgId);
+            final Node mainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                         rnaMouseBrainMouseSample.mainRegion);
+            final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                       rnaMouseBrainMouseSample.subregion);
+            // TODO: Split into two separate fields for age and gender.
+            // TODO: Maybe rename node label?
+            final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL, "data", rnaMouseBrainMouseSample.animal);
+            final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaMouseBrainMouseSample.tpm, null,
+                                                                           rnaMouseBrainMouseSample.pTpm, null,
+                                                                           null, null);
+
+            graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
+            graph.addEdge(subRegionNode, geneNode, "CONTAINS_EXPRESSED");
+            if (!Objects.equals(rnaMouseBrainMouseSample.mainRegion, rnaMouseBrainMouseSample.subregion)) {
+                graph.addEdge(mainRegionNode, subRegionNode, "HAS_SUBREGION");
+                graph.addEdge(subRegionNode, mainRegionNode, "IS_SUBREGION_OF");
+            }
+            graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(mouseDataNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(subRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        }
     }
 
     private void addRnaMouseBrainSampleHpas(final Graph graph, final List<RnaMouseBrainSampleHpa> rnaMouseBrainSampleHpas) {
+        LOGGER.info("Add RnaMouseBrainSampleHpas...");
+        for (final RnaMouseBrainSampleHpa rnaMouseBrainSampleHpa : rnaMouseBrainSampleHpas) {
 
+            final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainSampleHpa.ensmusgId);
+            final Node mainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                        rnaMouseBrainSampleHpa.mainRegion);
+            final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                       rnaMouseBrainSampleHpa.subregion);
+            // TODO: Split into two separate fields for age and gender.
+            // TODO: Maybe rename node label?
+            final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL, "data", rnaMouseBrainSampleHpa.animal);
+            final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaMouseBrainSampleHpa.tpm, null,
+                                                                           rnaMouseBrainSampleHpa.pTpm,
+                                                                           rnaMouseBrainSampleHpa.nTpm, null,
+                                                                           null);
+
+            graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
+            graph.addEdge(subRegionNode, geneNode, "CONTAINS_EXPRESSED");
+            if (!Objects.equals(rnaMouseBrainSampleHpa.mainRegion, rnaMouseBrainSampleHpa.subregion)) {
+                graph.addEdge(mainRegionNode, subRegionNode, "HAS_SUBREGION");
+                graph.addEdge(subRegionNode, mainRegionNode, "IS_SUBREGION_OF");
+            }
+            graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(mouseDataNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(subRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        }
     }
 
     private void addRnaPfcBrainHpas(final Graph graph, final List<RnaPfcBrainHpa> rnaPfcBrainHpas) {
+        LOGGER.info("Add RnaPfcBrainHpas...");
+        for (final RnaPfcBrainHpa rnaPfcBrainHpa: rnaPfcBrainHpas) {
 
+            final Node geneNode = getOrCreateGeneNode(graph, rnaPfcBrainHpa.gene, rnaPfcBrainHpa.geneName);
+            final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                         rnaPfcBrainHpa.subregion);
+            final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaPfcBrainHpa.tpm, null,
+                                                                           rnaPfcBrainHpa.pTpm, rnaPfcBrainHpa.nTpm,
+                                                                           null, null);
+
+            graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
+            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
+            graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        }
     }
 
     private void addRnaPigBrainHpas(final Graph graph, final List<RnaPigBrainHpa> rnaPigBrainHpas) {
+        LOGGER.info("Add RnaPigBrainHpas...");
+        for (final RnaPigBrainHpa rnaPigBrainHpa: rnaPigBrainHpas) {
 
+            final Node geneNode = getOrCreateGeneNode(graph, rnaPigBrainHpa.gene, rnaPigBrainHpa.geneName);
+            final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                         rnaPigBrainHpa.brainRegion);
+            final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaPigBrainHpa.tpm, null,
+                                                                           rnaPigBrainHpa.pTpm, rnaPigBrainHpa.nTpm,
+                                                                           null, null);
+
+            graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
+            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
+            graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        }
     }
 
     private void addRnaPigBrainSampleHpas(final Graph graph, final List<RnaPigBrainSampleHpa> rnaPigBrainSampleHpas) {
+        LOGGER.info("Add RnaPigBrainSampleHpas...");
+        for (final RnaPigBrainSampleHpa rnaPigBrainSampleHpa : rnaPigBrainSampleHpas) {
 
+            final Node geneNode = getOrCreateGeneNode(graph, rnaPigBrainSampleHpa.enssscgId);
+            final Node mainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                        rnaPigBrainSampleHpa.mainRegion);
+            final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                       rnaPigBrainSampleHpa.subregion);
+            // TODO: Split into two separate fields for age and gender.
+            // TODO: Maybe rename node label?
+            final Node pigDataNode = graph.addNode(PIG_DATA_LABEL, "data", rnaPigBrainSampleHpa.animal);
+            final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaPigBrainSampleHpa.tpm, null,
+                                                                           rnaPigBrainSampleHpa.pTpm,
+                                                                           rnaPigBrainSampleHpa.nTpm, null,
+                                                                           null);
+
+            graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
+            graph.addEdge(subRegionNode, geneNode, "CONTAINS_EXPRESSED");
+            if (!Objects.equals(rnaPigBrainSampleHpa.mainRegion, rnaPigBrainSampleHpa.subregion)) {
+                graph.addEdge(mainRegionNode, subRegionNode, "HAS_SUBREGION");
+                graph.addEdge(subRegionNode, mainRegionNode, "IS_SUBREGION_OF");
+            }
+            graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(pigDataNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(subRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        }
     }
 
     private void addRnaSingleCellClusterDescriptions(final Graph graph,
                                                      final List<RnaSingleCellClusterDescription> rnaSingleCellClusterDescriptions) {
-
-    }
-
-    private void addRnaSingleCellReadCounts(final Graph graph, final List<RnaSingleCellReadCount> rnaSingleCellReadCounts) {
 
     }
 
