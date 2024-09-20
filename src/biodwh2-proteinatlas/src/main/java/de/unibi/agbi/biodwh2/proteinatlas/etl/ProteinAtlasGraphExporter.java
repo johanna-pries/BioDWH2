@@ -34,6 +34,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     private static final String PIG_DATA_LABEL = "pigData";
     private static final String CELL_TYPE_GROUP_LABEL = "cellTypeGroup";
     private static final String CLUSTER_DATA_LABEL = "clusterData";
+    private static final String LOCATION_LABEL = "location";
+    private static final String CELL_METRICS_LABEL = "cellMetrics";
 
     public ProteinAtlasGraphExporter(final ProteinAtlasDataSource dataSource) {
         super(dataSource);
@@ -62,6 +64,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         graph.addIndex(IndexDescription.forNode(DONOR_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(MOUSE_DATA_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(PIG_DATA_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(LOCATION_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
+        graph.addIndex(IndexDescription.forNode(CELL_METRICS_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         // TODO: Add indices for nodes in remaining files here.
 
         addNormalTissues(graph, dataSource.normalTissues);
@@ -88,13 +92,13 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         addRnaSingleCellClusterDescriptions(graph, dataSource.rnaSingleCellClusterDescriptions);
         addRnaSingleCellTypes(graph, dataSource.rnaSingleCellTypes);
         addRnaSingleCellTypeTissues(graph, dataSource.rnaSingleCellTypeTissues);
-        /*
         addRnaTissueConsensuses(graph, dataSource.rnaTissueConsensuses);
         addRnaTissueFantoms(graph, dataSource.rnaTissueFantoms);
         addRnaTissueGtexes(graph, dataSource.rnaTissueGtexes);
         addRnaTissueHpas(graph, dataSource.rnaTissueHpas);
         addRnaTissueHpaDescription(graph, dataSource.rnaTissueHpaDescriptions);
         addSubcellularLocations(graph, dataSource.subcellularLocations);
+        /*
         addTranscriptRnaBloodcells(graph, dataSource.transcriptRnaBloodcells);
         addTranscriptRnaBrains(graph, dataSource.transcriptRnaBrains);
         addTranscriptRnaGtexRetinas(graph, dataSource.transcriptRnaGtexretinas);
@@ -118,6 +122,35 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         return node;
     }
 
+    private Node getOrCreateGeneNode(final Graph graph, final String geneId, final String geneName,
+                                     final String reliabilityScore) {
+        Node node = graph.findNode(GENE_LABEL, ID_KEY, geneId);
+        if (node != null) {
+            if (!node.hasProperty("name")) {
+                node.setProperty("name", geneName);
+                graph.update(node);
+            }
+            if (!node.hasProperty("reliabilityScore")) {
+                node.setProperty("reliabilityScore", reliabilityScore);
+                graph.update(node);
+            }
+        } else {
+            if (geneId.contains("ENSG")) {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "reliabilityScore", reliabilityScore,
+                                     "species", "Homo sapiens");
+            } else if (geneId.contains("ENSMUSG")) {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "reliabilityScore", reliabilityScore,
+                                     "species", "Mus musculus");
+            } else if (geneId.contains("ENSSSCG")) {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "reliabilityScore", reliabilityScore,
+                                     "species", "Sus scrofa");
+            } else {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "reliabilityScore", reliabilityScore);
+            }
+        }
+        return node;
+    }
+
     private Node getOrCreateGeneNode(final Graph graph, final String geneId, final String geneName) {
         Node node = graph.findNode(GENE_LABEL, ID_KEY, geneId);
         if (node != null && !node.hasProperty("name")) {
@@ -126,14 +159,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
         if (node == null) {
             if (geneId.contains("ENSG")) {
-                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "species",
-                                     "Homo sapiens");
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "species", "Homo sapiens");
             } else if (geneId.contains("ENSMUSG")) {
-                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "species",
-                                     "Mus musculus");
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "species", "Mus musculus");
             } else if (geneId.contains("ENSSSCG")) {
-                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "species",
-                                     "Sus scrofa");
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName, "species", "Sus scrofa");
             } else {
                 node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "name", geneName);
             }
@@ -143,8 +173,17 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
     private Node getOrCreateGeneNode(final Graph graph, final String geneId) {
         Node node = graph.findNode(GENE_LABEL, ID_KEY, geneId);
-        if (node == null)
-            node = graph.addNode(GENE_LABEL, ID_KEY, geneId);
+        if (node == null) {
+            if (geneId.contains("ENSG")) {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "species", "Homo sapiens");
+            } else if (geneId.contains("ENSMUSG")) {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "species", "Mus musculus");
+            } else if (geneId.contains("ENSSSCG")) {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId, "species", "Sus scrofa");
+            } else {
+                node = graph.addNode(GENE_LABEL, ID_KEY, geneId);
+            }
+        }
         return node;
     }
 
@@ -177,6 +216,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             node.setProperty("diseaseType", diseaseType);
             node.setProperty("diseaseSubtype", diseaseSubtype);
             // TODO: Split into two separate fields for age and gender.
+            //       Examples: "Female, 54", "Male", "13".
             node.setProperty("patientData", patientData);
             if (Objects.equals(primaryOrMetastasis, "primary")) {
                 node.setProperty("primary", true);
@@ -197,6 +237,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             builder.withPropertyIfNotNull("diseaseType", diseaseType);
             builder.withPropertyIfNotNull("diseaseSubtype", diseaseSubtype);
             // TODO: Split into two separate fields for age and gender.
+            //       Examples: "Female, 54", "Male", "13".
             builder.withPropertyIfNotNull("patientData", patientData);
             if (Objects.equals(primaryOrMetastasis, "primary")) {
                 builder.withPropertyIfNotNull("primary", true);
@@ -438,7 +479,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    // TODO: This file is not as the others. Looks like a matrix, but not all columns are labeled?
+    // TODO: I think this data file is damaged. There are not enough column headers for the values.
     private void addRnaImmuneCellSampleTpmMs(final Graph graph, final List<RnaImmuneCellSampleTpmM> rnaImmuneCellSampleTpmMs) {
     }
 
@@ -505,7 +546,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                         rnaMouseBrainMouseSample.mainRegion);
             final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaMouseBrainMouseSample.subregion);
-            // TODO: Split into two separate fields for age and gender.
+            // TODO: Split into two separate fields for gender and age.
+            //       Examples: "female 1" or "male 2".
             // TODO: Maybe rename node label?
             final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL, "data", rnaMouseBrainMouseSample.animal);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaMouseBrainMouseSample.tpm, null,
@@ -533,7 +575,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                         rnaMouseBrainSampleHpa.mainRegion);
             final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaMouseBrainSampleHpa.subregion);
-            // TODO: Split into two separate fields for age and gender.
+            // TODO: Split into two separate fields for gender and age.
+            //       Examples: "F 1" or "M 2".
             // TODO: Maybe rename node label?
             final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL, "data", rnaMouseBrainSampleHpa.animal);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaMouseBrainSampleHpa.tpm, null,
@@ -596,7 +639,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                         rnaPigBrainSampleHpa.mainRegion);
             final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaPigBrainSampleHpa.subregion);
-            // TODO: Split into two separate fields for age and gender.
+            // TODO: Split into two separate fields for gender and age.
+            //       Examples: "F 1" or "M 2".
             // TODO: Maybe rename node label?
             final Node pigDataNode = graph.addNode(PIG_DATA_LABEL, "data", rnaPigBrainSampleHpa.animal);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaPigBrainSampleHpa.tpm, null,
@@ -753,11 +797,55 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     }
 
     private void addRnaTissueHpaDescription(final Graph graph, final List<RnaTissueHpaDescription> rnaTissueHpaDescriptions) {
+        LOGGER.info("Add RnaTissueHpaDescription...");
+        for (final RnaTissueHpaDescription rnaTissueHpaDescription : rnaTissueHpaDescriptions) {
 
+            final Node tissueNode = getOrCreateNode(graph, TISSUE_LABEL, "name", rnaTissueHpaDescription.tissue);
+            final Node tissueGroupNode = getOrCreateNode(graph, TISSUE_LABEL, "name", rnaTissueHpaDescription.tissueGroup);
+            final Node organNode = getOrCreateNode(graph, TISSUE_LABEL, "name", rnaTissueHpaDescription.organ);
+
+            if (!Objects.equals(rnaTissueHpaDescription.tissue, rnaTissueHpaDescription.tissueGroup)) {
+                graph.addEdge(tissueNode, tissueGroupNode, "PART_OF");
+                graph.addEdge(tissueGroupNode, tissueNode, "HAS_PART");
+            }
+            if (!Objects.equals(rnaTissueHpaDescription.tissueGroup, rnaTissueHpaDescription.organ)) {
+                graph.addEdge(tissueGroupNode, organNode, "PART_OF");
+                graph.addEdge(organNode, tissueGroupNode, "HAS_PART");
+            }
+        }
     }
 
     private void addSubcellularLocations(final Graph graph, final List<SubcellularLocation> subcellularLocations) {
+        LOGGER.info("Add SubcellularLocations...");
+        for (final SubcellularLocation subcellularLocation: subcellularLocations) {
 
+            final Node geneNode = getOrCreateGeneNode(graph, subcellularLocation.gene, subcellularLocation.geneName,
+                                                      subcellularLocation.reliability);
+
+            final Node locationNode = graph.addNode(LOCATION_LABEL, "mainLocation",
+                                                    subcellularLocation.mainLocation, "additionalLocation",
+                                                    subcellularLocation.additionalLocation, "extracellularLocation",
+                                                    subcellularLocation.extracellularLocation, "enhancedLocation",
+                                                    subcellularLocation.enhanced, "supportedLocation",
+                                                    subcellularLocation.supported);
+            locationNode.setProperty("approvedLocation", subcellularLocation.approved);
+            locationNode.setProperty("uncertainLocation", subcellularLocation.uncertain);
+            // TODO: This has to be split into GO-Id and GO-Term. Also a list could be added for multiple IDs/terms.
+            //       Example: "Cell Junctions (GO:0030054);Cytosol (GO:0005829);Nucleoli fibrillar center (GO:0001650)".
+            locationNode.setProperty("goId", subcellularLocation.goId);
+            graph.update(locationNode);
+
+            final Node cellMetricsNode = graph.addNode(CELL_METRICS_LABEL, "singleCellVariationIntensity",
+                                                       subcellularLocation.singleCellVariationIntensity,
+                                                       "singleCellVariation,Spatial",
+                                                       subcellularLocation.singleCellVariationSpatial,
+                                                       "cellCycleDependency", subcellularLocation.cellCycleDependency);
+
+            graph.addEdge(geneNode, locationNode, "EXPRESSED_IN");
+            graph.addEdge(locationNode, geneNode, "CONTAINS_EXPRESSED");
+            graph.addEdge(geneNode, cellMetricsNode, "HAS_METRICS");
+            graph.addEdge(locationNode, cellMetricsNode, "HAS_METRICS");
+        }
     }
 
     private void addTranscriptRnaBloodcells(final Graph graph, final List<TranscriptRnaBloodcells> transcriptRnaBloodcells) {

@@ -48,8 +48,8 @@ public class SubcellularLocation {
         public String singleCellVariationSpatial;
         @JsonProperty("Cell cycle dependency")
         @GraphProperty("cell_cycle_dependency")
-        public String CellCycleDependency;
+        public String cellCycleDependency;
         @JsonProperty("GO id")
         @GraphProperty("go_id")
-        public String GoId;
+        public String goId;
 }
