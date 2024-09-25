@@ -1,8 +1,11 @@
 package de.unibi.agbi.biodwh2.proteinatlas.etl;
 
+import com.fasterxml.jackson.databind.MappingIterator;
 import de.unibi.agbi.biodwh2.core.Workspace;
 import de.unibi.agbi.biodwh2.core.etl.GraphExporter;
 import de.unibi.agbi.biodwh2.core.exceptions.ExporterException;
+import de.unibi.agbi.biodwh2.core.exceptions.ExporterFormatException;
+import de.unibi.agbi.biodwh2.core.io.FileUtils;
 import de.unibi.agbi.biodwh2.core.model.graph.Graph;
 import de.unibi.agbi.biodwh2.core.model.graph.IndexDescription;
 import de.unibi.agbi.biodwh2.core.model.graph.Node;
@@ -12,8 +15,9 @@ import de.unibi.agbi.biodwh2.proteinatlas.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Objects;
+import java.util.zip.ZipInputStream;
 
 public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSource> {
     private static final Logger LOGGER = LogManager.getLogger(ProteinAtlasGraphExporter.class);
@@ -68,46 +72,72 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         graph.addIndex(IndexDescription.forNode(CELL_METRICS_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         // TODO: Add indices for nodes in remaining files here.
 
-        addNormalTissues(graph, dataSource.normalTissues);
-        addPathologies(graph, dataSource.pathologies);
-        addRnaBrainFantoms(graph, dataSource.rnaBrainFantoms);
-        addRnaBrainGtexes(graph, dataSource.rnaBrainGtexes);
-        addRnaBrainHpas(graph, dataSource.rnaBrainHpas);
-        addRnaCancerSamples(graph, dataSource.rnaCancerSamples);
-        addRnaCellines(graph, dataSource.rnaCellines);
-        addRnaCellineCancers(graph, dataSource.rnaCellineCancers);
-        addRnaCellineDescriptions(graph, dataSource.rnaCellineDescriptions);
-        addRnaImmuneCells(graph, dataSource.rnaImmuneCells);
-        addRnaImmuneCellMonacos(graph, dataSource.rnaImmuneCellMonacos);
-        addRnaImmuneCellSamples(graph, dataSource.rnaImmuneCellSamples);
-        // TODO: addRnaImmuneCellSampleTpmMs(graph, dataSource.rnaImmuneCellSampleTpmMs);
-        addRnaImmuneCellSchmiedels(graph, dataSource.rnaImmuneCellSchmiedels);
-        addRnaMouseBrainAllens(graph, dataSource.rnaMouseBrainAllens);
-        addRnaMouseBrainHpas(graph, dataSource.rnaMouseBrainHpas);
-        addRnaMouseBrainMouseSamples(graph, dataSource.rnaMouseBrainMouseSamples);
-        addRnaMouseBrainSampleHpas(graph, dataSource.rnaMouseBrainSampleHpas);
-        addRnaPfcBrainHpas(graph, dataSource.rnaPfcBrainHpas);
-        addRnaPigBrainHpas(graph, dataSource.rnaPigBrainHpas);
-        addRnaPigBrainSampleHpas(graph, dataSource.rnaPigBrainSampleHpas);
-        addRnaSingleCellClusterDescriptions(graph, dataSource.rnaSingleCellClusterDescriptions);
-        addRnaSingleCellTypes(graph, dataSource.rnaSingleCellTypes);
-        addRnaSingleCellTypeTissues(graph, dataSource.rnaSingleCellTypeTissues);
-        addRnaTissueConsensuses(graph, dataSource.rnaTissueConsensuses);
-        addRnaTissueFantoms(graph, dataSource.rnaTissueFantoms);
-        addRnaTissueGtexes(graph, dataSource.rnaTissueGtexes);
-        addRnaTissueHpas(graph, dataSource.rnaTissueHpas);
-        addRnaTissueHpaDescription(graph, dataSource.rnaTissueHpaDescriptions);
-        addSubcellularLocations(graph, dataSource.subcellularLocations);
+        addNormalTissues(workspace, graph);
+        addPathologies(workspace, graph);
+        addRnaBrainFantoms(workspace, graph);
+        addRnaBrainGtexes(workspace, graph);
+        addRnaBrainHpas(workspace, graph);
+        addRnaCancerSamples(workspace, graph);
+        addRnaCellines(workspace, graph);
+        addRnaCellineCancers(workspace, graph);
+        addRnaCellineDescriptions(workspace, graph);
+        addRnaImmuneCells(workspace, graph);
+        addRnaImmuneCellMonacos(workspace, graph);
+        addRnaImmuneCellSamples(workspace, graph);
+        // TODO: addRnaImmuneCellSampleTpmMs(workspace, graph);
+        addRnaImmuneCellSchmiedels(workspace, graph);
+        addRnaMouseBrainAllens(workspace, graph);
+        addRnaMouseBrainHpas(workspace, graph);
+        addRnaMouseBrainMouseSamples(workspace, graph);
+        addRnaMouseBrainSampleHpas(workspace, graph);
+        addRnaPfcBrainHpas(workspace, graph);
+        addRnaPigBrainHpas(workspace, graph);
+        addRnaPigBrainSampleHpas(workspace, graph);
+        addRnaSingleCellClusterDescriptions(workspace, graph);
+        addRnaSingleCellTypes(workspace, graph);
+        addRnaSingleCellTypeTissues(workspace, graph);
+        addRnaTissueConsensuses(workspace, graph);
+        addRnaTissueFantoms(workspace, graph);
+        addRnaTissueGtexes(workspace, graph);
+        addRnaTissueHpas(workspace, graph);
+        addRnaTissueHpaDescription(workspace, graph);
+        addSubcellularLocations(workspace, graph);
         /*
-        addTranscriptRnaBloodcells(graph, dataSource.transcriptRnaBloodcells);
-        addTranscriptRnaBrains(graph, dataSource.transcriptRnaBrains);
-        addTranscriptRnaGtexRetinas(graph, dataSource.transcriptRnaGtexretinas);
-        addTranscriptRnaMouseBrains(graph, dataSource.transcriptRnaMousebrains);
-        addTranscriptRnaPigBrains(graph, dataSource.transcriptRnaPigbrains);
-        addTranscriptRnaTissues(graph, dataSource.transcriptRnaTissues);
+        addTranscriptRnaBloodcells(workspace, graph);
+        addTranscriptRnaBrains(workspace, graph);
+        addTranscriptRnaGtexRetinas(workspace, graph);
+        addTranscriptRnaMouseBrains(workspace, graph);
+        addTranscriptRnaPigBrains(workspace, graph);
+        addTranscriptRnaTissues(workspace, graph);
         */
-
         return true;
+    }
+
+    /*
+     * Method for parsing TSV-files which are zipped.
+     */
+    private <T> Iterable<T> parseZipTsvFile(final Workspace workspace, final String fileName, final Class<T> typeClass) throws ExporterException {
+        try {
+            final ZipInputStream stream = FileUtils.openZip(workspace, dataSource, fileName);
+            // TODO: Are the headers skipped because of this? But without it, it does not work.
+            stream.getNextEntry();
+            final MappingIterator<T> iterator = FileUtils.openSeparatedValuesFile(stream, typeClass, '\t', false);
+            return () -> iterator;
+        } catch (IOException e) {
+            throw new ExporterFormatException("Failed to parse the file '" + fileName + "'", e);
+        }
+    }
+
+    /*
+     * Method for parsing TSV-files.
+     */
+    private <T> Iterable<T> parseTsvFile(final Workspace workspace, final String fileName, final Class<T> typeClass) throws ExporterException {
+        try {
+            final MappingIterator<T> iterator = FileUtils.openTsv(workspace, dataSource, fileName, typeClass);
+            return () -> iterator;
+        } catch (IOException e) {
+            throw new ExporterFormatException("Failed to parse the file '" + fileName + "'", e);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,9 +288,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     // Methods for adding the parsed files. ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void addNormalTissues(final Graph graph, final List<NormalTissue> normalTissues) {
+    private void addNormalTissues(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add NormalTissues...");
-        for (final NormalTissue normalTissue : normalTissues) {
+        for (NormalTissue normalTissue : parseZipTsvFile(workspace, ProteinAtlasUpdater.NORMAL_TISSUE_FILE_NAME,
+                                                         NormalTissue.class)) {
 
             final Node tissueNode = getOrCreateNode(graph, TISSUE_LABEL, "name", normalTissue.tissue);
             final Node geneNode = getOrCreateGeneNode(graph, normalTissue.gene, normalTissue.geneName);
@@ -278,9 +309,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addPathologies(final Graph graph, final List<Pathology> pathologies) {
+    private void addPathologies(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add Pathologies...");
-        for (final Pathology pathology : pathologies) {
+        for (final Pathology pathology : parseZipTsvFile(workspace, ProteinAtlasUpdater.PATHOLOGY_FILE_NAME,
+                                                         Pathology.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, pathology.gene, pathology.geneName);
             final Node cancerNode = getOrCreateNode(graph, CANCER_LABEL, "type", pathology.cancer);
@@ -302,9 +334,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaBrainFantoms(final Graph graph, final List<RnaBrainFantom> rnaBrainFantoms) {
+    private void addRnaBrainFantoms(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaBrainFantoms...");
-        for (final RnaBrainFantom rnaBrainFantom: rnaBrainFantoms) {
+        for (final RnaBrainFantom rnaBrainFantom: parseZipTsvFile(workspace,
+                                                                  ProteinAtlasUpdater.RNA_BRAIN_FANTOM_FILE_NAME,
+                                                                  RnaBrainFantom.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaBrainFantom.gene, rnaBrainFantom.geneName);
             final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name", rnaBrainFantom.brainRegion);
@@ -320,9 +354,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaBrainGtexes(final Graph graph, final List<RnaBrainGtex> rnaBrainGtexes) {
+    private void addRnaBrainGtexes(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaBrainGtexes...");
-        for (final RnaBrainGtex rnaBrainGtex: rnaBrainGtexes) {
+        for (final RnaBrainGtex rnaBrainGtex: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_BRAIN_GTEX_FILE_NAME,
+                                                              RnaBrainGtex.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaBrainGtex.gene, rnaBrainGtex.geneName);
             final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name", rnaBrainGtex.brainRegion);
@@ -337,9 +372,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaBrainHpas(final Graph graph, final List<RnaBrainHpa> rnaBrainHpas) {
+    private void addRnaBrainHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaBrainHpas...");
-        for (final RnaBrainHpa rnaBrainHpa: rnaBrainHpas) {
+        for (final RnaBrainHpa rnaBrainHpa: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_BRAIN_HPA_FILE_NAME,
+                                                            RnaBrainHpa.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaBrainHpa.gene, rnaBrainHpa.geneName);
             final Node subregionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name", rnaBrainHpa.subregion);
@@ -354,9 +390,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaCancerSamples(final Graph graph, final List<RnaCancerSample> rnaCancerSamples) {
+    private void addRnaCancerSamples(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaCancerSamples...");
-        for (final RnaCancerSample rnaCancerSample: rnaCancerSamples) {
+        for (final RnaCancerSample rnaCancerSample: parseZipTsvFile(workspace,
+                                                                    ProteinAtlasUpdater.RNA_CANCER_SAMPLE_FILE_NAME,
+                                                                    RnaCancerSample.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaCancerSample.gene);
             final Node sampleNode = getOrCreateNode(graph, SAMPLE_LABEL, "id", rnaCancerSample.sample);
@@ -372,9 +410,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaCellines(final Graph graph, final List<RnaCelline> rnaCellines) {
+    private void addRnaCellines(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaCellines...");
-        for (final RnaCelline rnaCelline: rnaCellines) {
+        for (final RnaCelline rnaCelline: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_CELLINE_FILE_NAME,
+                                                          RnaCelline.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaCelline.gene, rnaCelline.geneName);
             final Node cellLineNode = getOrCreateCellLineNode(graph, rnaCelline.cellLine, null, null, null, null, null,
@@ -390,9 +429,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaCellineCancers(final Graph graph, final List<RnaCellineCancer> rnaCellineCancers) {
+    private void addRnaCellineCancers(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaCellineCancers...");
-        for (final RnaCellineCancer rnaCellineCancer: rnaCellineCancers) {
+        for (final RnaCellineCancer rnaCellineCancer: parseZipTsvFile(workspace,
+                                                                      ProteinAtlasUpdater.RNA_CELLINE_CANCER_FILE_NAME,
+                                                                      RnaCellineCancer.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaCellineCancer.gene);
             final Node cancerNode = getOrCreateNode(graph, CANCER_LABEL, "type", rnaCellineCancer.cancer);
@@ -407,9 +448,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaCellineDescriptions(final Graph graph, final List<RnaCellineDescription> rnaCellineDescriptions) {
+    private void addRnaCellineDescriptions(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaCellineDescriptions...");
-        for (final RnaCellineDescription rnaCellineDescription: rnaCellineDescriptions) {
+        for (final RnaCellineDescription rnaCellineDescription: parseZipTsvFile(workspace,
+                                                                                ProteinAtlasUpdater.RNA_CELLINE_DESCRIPTION_FILE_NAME,
+                                                                                RnaCellineDescription.class)) {
 
             getOrCreateCellLineNode(graph, rnaCellineDescription.cellLine, rnaCellineDescription.cellosaurusId,
                                     rnaCellineDescription.disease, rnaCellineDescription.diseaseSubtype,
@@ -418,9 +461,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaImmuneCells(final Graph graph, final List<RnaImmuneCell> rnaImmuneCells) {
+    private void addRnaImmuneCells(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCells...");
-        for (final RnaImmuneCell rnaImmuneCell: rnaImmuneCells) {
+        for (final RnaImmuneCell rnaImmuneCell: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_IMMUNE_CELL_FILE_NAME,
+                                                                RnaImmuneCell.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaImmuneCell.gene, rnaImmuneCell.geneName);
             final Node immuneCellNode = getOrCreateNode(graph, IMMUNE_CELL_LABEL, "name", rnaImmuneCell.immuneCell);
@@ -435,9 +479,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaImmuneCellMonacos(final Graph graph, final List<RnaImmuneCellMonaco> rnaImmuneCellMonacos) {
+    private void addRnaImmuneCellMonacos(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCellMonacos...");
-        for (final RnaImmuneCellMonaco rnaImmuneCellMonaco: rnaImmuneCellMonacos) {
+        for (final RnaImmuneCellMonaco rnaImmuneCellMonaco: parseZipTsvFile(workspace,
+                                                                            ProteinAtlasUpdater.RNA_IMMUNE_CELL_MONACO_FILE_NAME,
+                                                                            RnaImmuneCellMonaco.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaImmuneCellMonaco.gene, rnaImmuneCellMonaco.geneName);
             final Node immuneCellNode = getOrCreateNode(graph, IMMUNE_CELL_LABEL, "name",
@@ -453,9 +499,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaImmuneCellSamples(final Graph graph, final List<RnaImmuneCellSample> rnaImmuneCellSamples) {
+    private void addRnaImmuneCellSamples(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCellSamples...");
-        for (final RnaImmuneCellSample rnaImmuneCellSample: rnaImmuneCellSamples) {
+        for (final RnaImmuneCellSample rnaImmuneCellSample: parseZipTsvFile(workspace,
+                                                                            ProteinAtlasUpdater.RNA_IMMUNE_CELL_SAMPLE_FILE_NAME,
+                                                                            RnaImmuneCellSample.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaImmuneCellSample.ensgId, rnaImmuneCellSample.geneName);
             final Node immuneCellNode = getOrCreateNode(graph, IMMUNE_CELL_LABEL, "name",
@@ -480,12 +528,14 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     }
 
     // TODO: I think this data file is damaged. There are not enough column headers for the values.
-    private void addRnaImmuneCellSampleTpmMs(final Graph graph, final List<RnaImmuneCellSampleTpmM> rnaImmuneCellSampleTpmMs) {
+    private void addRnaImmuneCellSampleTpmMs(final Workspace workspace, final Graph graph) {
     }
 
-    private void addRnaImmuneCellSchmiedels(final Graph graph, final List<RnaImmuneCellSchmiedel> rnaImmuneCellSchmiedels) {
+    private void addRnaImmuneCellSchmiedels(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCellSchmiedels...");
-        for (final RnaImmuneCellSchmiedel rnaImmuneCellSchmiedel: rnaImmuneCellSchmiedels) {
+        for (final RnaImmuneCellSchmiedel rnaImmuneCellSchmiedel: parseZipTsvFile(workspace,
+                                                                                  ProteinAtlasUpdater.RNA_IMMUNE_CELL_SCHMIEDEL_FILE_NAME,
+                                                                                  RnaImmuneCellSchmiedel.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaImmuneCellSchmiedel.gene, rnaImmuneCellSchmiedel.geneName);
             final Node immuneCellNode = getOrCreateNode(graph, IMMUNE_CELL_LABEL, "name",
@@ -501,9 +551,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaMouseBrainAllens(final Graph graph, final List<RnaMouseBrainAllen> rnaMouseBrainAllens) {
+    private void addRnaMouseBrainAllens(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainAllens...");
-        for (final RnaMouseBrainAllen rnaMouseBrainAllen: rnaMouseBrainAllens) {
+        for (final RnaMouseBrainAllen rnaMouseBrainAllen: parseZipTsvFile(workspace,
+                                                                          ProteinAtlasUpdater.RNA_MOUSE_BRAIN_ALLEN_FILE_NAME,
+                                                                          RnaMouseBrainAllen.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainAllen.gene, rnaMouseBrainAllen.geneName);
             final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
@@ -519,9 +571,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaMouseBrainHpas(final Graph graph, final List<RnaMouseBrainHpa> rnaMouseBrainHpas) {
+    private void addRnaMouseBrainHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainHpas...");
-        for (final RnaMouseBrainHpa rnaMouseBrainHpa : rnaMouseBrainHpas) {
+        for (final RnaMouseBrainHpa rnaMouseBrainHpa : parseZipTsvFile(workspace,
+                                                                       ProteinAtlasUpdater.RNA_MOUSE_BRAIN_HPA_FILE_NAME,
+                                                                       RnaMouseBrainHpa.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainHpa.gene, rnaMouseBrainHpa.geneName);
             final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
@@ -537,9 +591,12 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaMouseBrainMouseSamples(final Graph graph, final List<RnaMouseBrainMouseSample> rnaMouseBrainMouseSamples) {
+    private void addRnaMouseBrainMouseSamples(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainMouseSamples...");
-        for (final RnaMouseBrainMouseSample rnaMouseBrainMouseSample : rnaMouseBrainMouseSamples) {
+        // TODO: check if the parsing works like this.
+        for (final RnaMouseBrainMouseSample rnaMouseBrainMouseSample : parseTsvFile(workspace,
+                                                                                    ProteinAtlasUpdater.RNA_MOUSE_BRAIN_MOUSE_SAMPLE_FILE_NAME,
+                                                                                    RnaMouseBrainMouseSample.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainMouseSample.ensmusgId);
             final Node mainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
@@ -566,9 +623,12 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaMouseBrainSampleHpas(final Graph graph, final List<RnaMouseBrainSampleHpa> rnaMouseBrainSampleHpas) {
+    private void addRnaMouseBrainSampleHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainSampleHpas...");
-        for (final RnaMouseBrainSampleHpa rnaMouseBrainSampleHpa : rnaMouseBrainSampleHpas) {
+        // TODO: Check if the parsing works like this.
+        for (final RnaMouseBrainSampleHpa rnaMouseBrainSampleHpa : parseZipTsvFile(workspace,
+                                                                                   ProteinAtlasUpdater.RNA_MOUSE_BRAIN_SAMPLE_HPA_FILE_NAME,
+                                                                                   RnaMouseBrainSampleHpa.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainSampleHpa.ensmusgId);
             final Node mainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
@@ -596,9 +656,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaPfcBrainHpas(final Graph graph, final List<RnaPfcBrainHpa> rnaPfcBrainHpas) {
+    private void addRnaPfcBrainHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaPfcBrainHpas...");
-        for (final RnaPfcBrainHpa rnaPfcBrainHpa: rnaPfcBrainHpas) {
+        for (final RnaPfcBrainHpa rnaPfcBrainHpa: parseZipTsvFile(workspace,
+                                                                  ProteinAtlasUpdater.RNA_PFC_BRAIN_HPA_FILE_NAME,
+                                                                  RnaPfcBrainHpa.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaPfcBrainHpa.gene, rnaPfcBrainHpa.geneName);
             final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name", rnaPfcBrainHpa.subregion);
@@ -613,9 +675,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaPigBrainHpas(final Graph graph, final List<RnaPigBrainHpa> rnaPigBrainHpas) {
+    private void addRnaPigBrainHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaPigBrainHpas...");
-        for (final RnaPigBrainHpa rnaPigBrainHpa: rnaPigBrainHpas) {
+        for (final RnaPigBrainHpa rnaPigBrainHpa: parseZipTsvFile(workspace,
+                                                                  ProteinAtlasUpdater.RNA_PIG_BRAIN_HPA_FILE_NAME,
+                                                                  RnaPigBrainHpa.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaPigBrainHpa.gene, rnaPigBrainHpa.geneName);
             final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name", rnaPigBrainHpa.brainRegion);
@@ -630,9 +694,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaPigBrainSampleHpas(final Graph graph, final List<RnaPigBrainSampleHpa> rnaPigBrainSampleHpas) {
+    private void addRnaPigBrainSampleHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaPigBrainSampleHpas...");
-        for (final RnaPigBrainSampleHpa rnaPigBrainSampleHpa : rnaPigBrainSampleHpas) {
+        for (final RnaPigBrainSampleHpa rnaPigBrainSampleHpa : parseZipTsvFile(workspace,
+                                                                               ProteinAtlasUpdater.RNA_PIG_BRAIN_SAMPLE_HPA_FILE_NAME,
+                                                                               RnaPigBrainSampleHpa.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaPigBrainSampleHpa.enssscgId);
             final Node mainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
@@ -660,10 +726,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaSingleCellClusterDescriptions(final Graph graph,
-                                                     final List<RnaSingleCellClusterDescription> rnaSingleCellClusterDescriptions) {
+    private void addRnaSingleCellClusterDescriptions(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaSingleCellClusterDescriptions...");
-        for (final RnaSingleCellClusterDescription rnaSingleCellClusterDescription: rnaSingleCellClusterDescriptions) {
+        for (final RnaSingleCellClusterDescription rnaSingleCellClusterDescription: parseZipTsvFile(workspace,
+                                                                                                    ProteinAtlasUpdater.RNA_SINGLE_CELL_CLUSTER_DESCRIPTION_FILE_NAME,
+                                                                                                    RnaSingleCellClusterDescription.class)) {
 
             final Node cellTypeNode = getOrCreateNode(graph, CELL_TYPE_LABEL, "name",
                                                       rnaSingleCellClusterDescription.cellType);
@@ -682,9 +749,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaSingleCellTypes(final Graph graph, final List<RnaSingleCellType> rnaSingleCellTypes) {
+    private void addRnaSingleCellTypes(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaSingleCellTypes...");
-        for (final RnaSingleCellType rnaSingleCellType: rnaSingleCellTypes) {
+        for (final RnaSingleCellType rnaSingleCellType: parseZipTsvFile(workspace,
+                                                                        ProteinAtlasUpdater.RNA_SINGLE_CELL_TYPE_FILE_NAME,
+                                                                        RnaSingleCellType.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaSingleCellType.gene, rnaSingleCellType.geneName);
             final Node cellTypeNode = getOrCreateNode(graph, CELL_TYPE_LABEL, "name", rnaSingleCellType.cellType);
@@ -699,9 +768,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaSingleCellTypeTissues(final Graph graph, final List<RnaSingleCellTypeTissue> rnaSingleCellTypeTissues) {
+    private void addRnaSingleCellTypeTissues(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaSingleCellTypeTissues...");
-        for (final RnaSingleCellTypeTissue rnaSingleCellTypeTissue: rnaSingleCellTypeTissues) {
+        for (final RnaSingleCellTypeTissue rnaSingleCellTypeTissue: parseZipTsvFile(workspace,
+                                                                                    ProteinAtlasUpdater.RNA_SINGLE_CELL_TYPE_TISSUE_FILE_NAME,
+                                                                                    RnaSingleCellTypeTissue.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaSingleCellTypeTissue.gene, rnaSingleCellTypeTissue.geneName);
             final Node cellTypeNode = getOrCreateNode(graph, CELL_TYPE_LABEL, "name", rnaSingleCellTypeTissue.cellType);
@@ -726,9 +797,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaTissueConsensuses(final Graph graph, final List<RnaTissueConsensus> rnaTissueConsensuses) {
+    private void addRnaTissueConsensuses(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaTissueConsensuses...");
-        for (final RnaTissueConsensus rnaTissueConsensus: rnaTissueConsensuses) {
+        for (final RnaTissueConsensus rnaTissueConsensus: parseZipTsvFile(workspace,
+                                                                          ProteinAtlasUpdater.RNA_TISSUE_CONSENSUS_FILE_NAME,
+                                                                          RnaTissueConsensus.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaTissueConsensus.gene, rnaTissueConsensus.geneName);
             final Node tissueNode = getOrCreateNode(graph, TISSUE_LABEL, "name",
@@ -744,9 +817,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaTissueFantoms(final Graph graph, final List<RnaTissueFantom> rnaTissueFantoms) {
+    private void addRnaTissueFantoms(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaTissueFantoms...");
-        for (final RnaTissueFantom rnaTissueFantom: rnaTissueFantoms) {
+        for (final RnaTissueFantom rnaTissueFantom: parseZipTsvFile(workspace,
+                                                                    ProteinAtlasUpdater.RNA_TISSUE_FANTOM_FILE_NAME,
+                                                                    RnaTissueFantom.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaTissueFantom.gene, rnaTissueFantom.geneName);
             final Node tissueNode = getOrCreateNode(graph, TISSUE_LABEL, "name", rnaTissueFantom.tissue);
@@ -762,9 +837,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaTissueGtexes(final Graph graph, final List<RnaTissueGtex> rnaTissueGtexes) {
+    private void addRnaTissueGtexes(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaTissueGtexes...");
-        for (final RnaTissueGtex rnaTissueGtex: rnaTissueGtexes) {
+        for (final RnaTissueGtex rnaTissueGtex: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_TISSUE_GTEX_FILE_NAME,
+                                                                RnaTissueGtex.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaTissueGtex.gene, rnaTissueGtex.geneName);
             final Node tissueNode = getOrCreateNode(graph, TISSUE_LABEL, "name", rnaTissueGtex.tissue);
@@ -779,9 +855,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaTissueHpas(final Graph graph, final List<RnaTissueHpa> rnaTissueHpas) {
+    private void addRnaTissueHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaTissueHpas...");
-        for (final RnaTissueHpa rnaTissueHpa: rnaTissueHpas) {
+        for (final RnaTissueHpa rnaTissueHpa: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_TISSUE_HPA_FILE_NAME,
+                                                              RnaTissueHpa.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaTissueHpa.gene, rnaTissueHpa.geneName);
             final Node tissueNode = getOrCreateNode(graph, TISSUE_LABEL, "name", rnaTissueHpa.tissue);
@@ -796,9 +873,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addRnaTissueHpaDescription(final Graph graph, final List<RnaTissueHpaDescription> rnaTissueHpaDescriptions) {
+    private void addRnaTissueHpaDescription(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaTissueHpaDescription...");
-        for (final RnaTissueHpaDescription rnaTissueHpaDescription : rnaTissueHpaDescriptions) {
+        for (final RnaTissueHpaDescription rnaTissueHpaDescription : parseZipTsvFile(workspace,
+                                                                                     ProteinAtlasUpdater.RNA_TISSUE_HPA_DESCRIPTION_FILE_NAME,
+                                                                                     RnaTissueHpaDescription.class)) {
 
             final Node tissueNode = getOrCreateNode(graph, TISSUE_LABEL, "name", rnaTissueHpaDescription.tissue);
             final Node tissueGroupNode = getOrCreateNode(graph, TISSUE_LABEL, "name", rnaTissueHpaDescription.tissueGroup);
@@ -815,9 +894,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addSubcellularLocations(final Graph graph, final List<SubcellularLocation> subcellularLocations) {
+    private void addSubcellularLocations(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add SubcellularLocations...");
-        for (final SubcellularLocation subcellularLocation: subcellularLocations) {
+        for (final SubcellularLocation subcellularLocation: parseZipTsvFile(workspace,
+                                                                            ProteinAtlasUpdater.SUBCELLULAR_LOCATION_FILE_NAME,
+                                                                            SubcellularLocation.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, subcellularLocation.gene, subcellularLocation.geneName,
                                                       subcellularLocation.reliability);
@@ -848,27 +929,27 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    private void addTranscriptRnaBloodcells(final Graph graph, final List<TranscriptRnaBloodcells> transcriptRnaBloodcells) {
+    private void addTranscriptRnaBloodcells(final Workspace workspace, final Graph graph) {
 
     }
 
-    private void addTranscriptRnaBrains(final Graph graph, final List<TranscriptRnaBrain> transcriptRnaBrains) {
+    private void addTranscriptRnaBrains(final Workspace workspace, final Graph graph) {
 
     }
 
-    private void addTranscriptRnaGtexRetinas(final Graph graph, final List<TranscriptRnaGtexRetina> transcriptRnaGtexretinas) {
+    private void addTranscriptRnaGtexRetinas(final Workspace workspace, final Graph graph) {
 
     }
 
-    private void addTranscriptRnaMouseBrains(final Graph graph, final List<TranscriptRnaMouseBrain> transcriptRnaMousebrains) {
+    private void addTranscriptRnaMouseBrains(final Workspace workspace, final Graph graph) {
 
     }
 
-    private void addTranscriptRnaPigBrains(final Graph graph, final List<TranscriptRnaPigBrain> transcriptRnaPigbrains) {
+    private void addTranscriptRnaPigBrains(final Workspace workspace, final Graph graph) {
 
     }
 
-    private void addTranscriptRnaTissues(final Graph graph, final List<TranscriptRnaTissue> transcriptRnaTissues) {
+    private void addTranscriptRnaTissues(final Workspace workspace, final Graph graph) {
 
     }
 }

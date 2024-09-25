@@ -6,7 +6,6 @@ import de.unibi.agbi.biodwh2.core.etl.*;
 import de.unibi.agbi.biodwh2.core.text.License;
 import de.unibi.agbi.biodwh2.proteinatlas.etl.ProteinAtlasGraphExporter;
 import de.unibi.agbi.biodwh2.proteinatlas.etl.ProteinAtlasMappingDescriber;
-import de.unibi.agbi.biodwh2.proteinatlas.etl.ProteinAtlasParser;
 import de.unibi.agbi.biodwh2.proteinatlas.etl.ProteinAtlasUpdater;
 import de.unibi.agbi.biodwh2.proteinatlas.model.*;
 
@@ -27,7 +26,6 @@ public class ProteinAtlasDataSource extends DataSource {
     public List<RnaSingleCellType> rnaSingleCellTypes;
     public List<RnaSingleCellTypeTissue> rnaSingleCellTypeTissues;
     public List<RnaSingleCellClusterDescription> rnaSingleCellClusterDescriptions;
-    public List<RnaSingleCellReadCount> rnaSingleCellReadCounts;
     public List<RnaBrainGtex> rnaBrainGtexes;
     public List<RnaBrainFantom> rnaBrainFantoms;
     public List<RnaPigBrainHpa> rnaPigBrainHpas;
@@ -45,7 +43,6 @@ public class ProteinAtlasDataSource extends DataSource {
     public List<RnaCelline> rnaCellines;
     public List<RnaCellineDescription> rnaCellineDescriptions;
     public List<RnaCancerSample> rnaCancerSamples;
-    // delete?
     public List<TranscriptRnaTissue> transcriptRnaTissues;
     public List<TranscriptRnaBrain> transcriptRnaBrains;
     public List<TranscriptRnaGtexRetina> transcriptRnaGtexretinas;
@@ -86,10 +83,9 @@ public class ProteinAtlasDataSource extends DataSource {
     }
 
     @Override
-    public Parser<ProteinAtlasDataSource> getParser() {
-        return new ProteinAtlasParser(this);
+    protected Parser<ProteinAtlasDataSource> getParser() {
+        return new PassThroughParser<>(this);
     }
-
     @Override
     protected GraphExporter<ProteinAtlasDataSource> getGraphExporter() {
         return new ProteinAtlasGraphExporter(this);
@@ -115,11 +111,11 @@ public class ProteinAtlasDataSource extends DataSource {
         rnaSingleCellTypes = null;
         rnaSingleCellTypeTissues = null;
         rnaSingleCellClusterDescriptions = null;
-        rnaSingleCellReadCounts = null;
         rnaBrainGtexes = null;
         rnaBrainFantoms = null;
         rnaPigBrainHpas = null;
         rnaPigBrainSampleHpas = null;
+        rnaMouseBrainAllens = null;
         rnaMouseBrainSampleHpas = null;
         rnaMouseBrainHpas = null;
         rnaMouseBrainMouseSamples = null;
@@ -132,7 +128,6 @@ public class ProteinAtlasDataSource extends DataSource {
         rnaCellines = null;
         rnaCellineDescriptions = null;
         rnaCancerSamples = null;
-        // delete?
         transcriptRnaTissues = null;
         transcriptRnaBrains = null;
         transcriptRnaGtexretinas = null;
