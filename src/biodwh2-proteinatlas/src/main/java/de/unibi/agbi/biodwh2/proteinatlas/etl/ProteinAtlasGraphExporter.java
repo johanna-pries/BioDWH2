@@ -16,7 +16,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
 public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSource> {
@@ -84,7 +88,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         addRnaImmuneCells(workspace, graph);
         addRnaImmuneCellMonacos(workspace, graph);
         addRnaImmuneCellSamples(workspace, graph);
-        // TODO: addRnaImmuneCellSampleTpmMs(workspace, graph);
+        // This files seems to be damaged.
+        // addRnaImmuneCellSampleTpmMs(workspace, graph);
         addRnaImmuneCellSchmiedels(workspace, graph);
         addRnaMouseBrainAllens(workspace, graph);
         addRnaMouseBrainHpas(workspace, graph);
@@ -245,9 +250,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             node.setProperty("cellosaurusId", cellosaurusId);
             node.setProperty("diseaseType", diseaseType);
             node.setProperty("diseaseSubtype", diseaseSubtype);
-            // TODO: Split into two separate fields for age and gender.
-            //       Examples: "Female, 54", "Male", "13".
-            node.setProperty("patientData", patientData);
+            if (patientData != null) {
+                // Examples: "Female, 54", "Male", "13".
+                separateAndAddGenderAndAge(node, Pattern.compile("(Male|Female)?(,\\s)?(\\d+)?"), patientData);
+            }
             if (Objects.equals(primaryOrMetastasis, "primary")) {
                 node.setProperty("primary", true);
                 node.setProperty("metastasis", false);
@@ -266,9 +272,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             builder.withPropertyIfNotNull("cellosaurusId", cellosaurusId);
             builder.withPropertyIfNotNull("diseaseType", diseaseType);
             builder.withPropertyIfNotNull("diseaseSubtype", diseaseSubtype);
-            // TODO: Split into two separate fields for age and gender.
-            //       Examples: "Female, 54", "Male", "13".
-            builder.withPropertyIfNotNull("patientData", patientData);
+            if (patientData != null) {
+                // Examples: "Female, 54", "Male", "13".
+                separateAndAddGenderAndAge(builder, Pattern.compile("(Female|Male)?(,\\s)?(\\d+)?"), patientData);
+            }
             if (Objects.equals(primaryOrMetastasis, "primary")) {
                 builder.withPropertyIfNotNull("primary", true);
                 builder.withPropertyIfNotNull("metastasis", false);
@@ -282,6 +289,32 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             node = builder.build();
         }
         return node;
+    }
+
+    /**
+     * Helper method for separating age and gender from data and add them to the builder.
+     */
+    private void separateAndAddGenderAndAge(NodeBuilder builder, Pattern pattern, String data) {
+        Matcher matcher = pattern.matcher(data.trim());
+        if (matcher.matches()) {
+            builder.withPropertyIfNotNull("gender", matcher.group(1));
+            builder.withPropertyIfNotNull("age", matcher.group(3));
+        }
+    }
+
+    /**
+     * Helper method for separating age and gender from data and add them to the node.
+     */
+    private void separateAndAddGenderAndAge(Node node, Pattern pattern, String data) {
+        Matcher matcher = pattern.matcher(data.trim());
+        if (matcher.matches()) {
+            if (matcher.group(1) != null) {
+                node.setProperty("gender", matcher.group(1));
+            }
+            if (matcher.group(3) != null) {
+                node.setProperty("age", matcher.group(3));
+            }
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -527,9 +560,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    // TODO: I think this data file is damaged. There are not enough column headers for the values.
+    // I think this data file is damaged. There are not enough column headers for the values.
+    /*
     private void addRnaImmuneCellSampleTpmMs(final Workspace workspace, final Graph graph) {
     }
+    */
 
     private void addRnaImmuneCellSchmiedels(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCellSchmiedels...");
@@ -603,10 +638,13 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                         rnaMouseBrainMouseSample.mainRegion);
             final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaMouseBrainMouseSample.subregion);
-            // TODO: Split into two separate fields for gender and age.
-            //       Examples: "female 1" or "male 2".
             // TODO: Maybe rename node label?
-            final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL, "data", rnaMouseBrainMouseSample.animal);
+            final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL);
+            if (rnaMouseBrainMouseSample.animal != null) {
+                // Examples: "female 1" or "male 2".
+                separateAndAddGenderAndAge(mouseDataNode, Pattern.compile("(female|male)?(\\s)?(\\d+)?"),
+                                           rnaMouseBrainMouseSample.animal);
+            }
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaMouseBrainMouseSample.tpm, null,
                                                                            rnaMouseBrainMouseSample.pTpm, null, null,
                                                                            null, null, null, null, null);
@@ -635,10 +673,13 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                         rnaMouseBrainSampleHpa.mainRegion);
             final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaMouseBrainSampleHpa.subregion);
-            // TODO: Split into two separate fields for gender and age.
-            //       Examples: "F 1" or "M 2".
             // TODO: Maybe rename node label?
-            final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL, "data", rnaMouseBrainSampleHpa.animal);
+            final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL);
+            if (rnaMouseBrainSampleHpa.animal != null) {
+                // Examples: "F 1" or "M 2".
+                separateAndAddGenderAndAge(mouseDataNode, Pattern.compile("([FM])?(\\s)?(\\d+)?"),
+                                           rnaMouseBrainSampleHpa.animal);
+            }
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaMouseBrainSampleHpa.tpm, null,
                                                                            rnaMouseBrainSampleHpa.pTpm,
                                                                            rnaMouseBrainSampleHpa.nTpm, null, null,
@@ -705,10 +746,13 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                         rnaPigBrainSampleHpa.mainRegion);
             final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaPigBrainSampleHpa.subregion);
-            // TODO: Split into two separate fields for gender and age.
-            //       Examples: "F 1" or "M 2".
             // TODO: Maybe rename node label?
-            final Node pigDataNode = graph.addNode(PIG_DATA_LABEL, "data", rnaPigBrainSampleHpa.animal);
+            final Node pigDataNode = graph.addNode(PIG_DATA_LABEL);
+            if (rnaPigBrainSampleHpa.animal != null) {
+                // Examples: "F 1" or "M 2".
+                separateAndAddGenderAndAge(pigDataNode, Pattern.compile("([FM])?(\\s)?(\\d+)?"),
+                                           rnaPigBrainSampleHpa.animal);
+            }
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaPigBrainSampleHpa.tpm, null,
                                                                            rnaPigBrainSampleHpa.pTpm,
                                                                            rnaPigBrainSampleHpa.nTpm, null,
@@ -911,9 +955,11 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                     subcellularLocation.supported);
             locationNode.setProperty("approvedLocation", subcellularLocation.approved);
             locationNode.setProperty("uncertainLocation", subcellularLocation.uncertain);
-            // TODO: This has to be split into GO-Id and GO-Term. Also a list could be added for multiple IDs/terms.
-            //       Example: "Cell Junctions (GO:0030054);Cytosol (GO:0005829);Nucleoli fibrillar center (GO:0001650)".
-            locationNode.setProperty("goId", subcellularLocation.goId);
+            if (subcellularLocation.goId != null) {
+                final List<List<String>> goTermsAndIds = parseGoTerms(subcellularLocation.goId);
+                locationNode.setProperty("goTerms", goTermsAndIds.get(0));
+                locationNode.setProperty("goIds", goTermsAndIds.get(1));
+            }
             graph.update(locationNode);
 
             final Node cellMetricsNode = graph.addNode(CELL_METRICS_LABEL, "singleCellVariationIntensity",
@@ -927,6 +973,24 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             graph.addEdge(geneNode, cellMetricsNode, "HAS_METRICS");
             graph.addEdge(locationNode, cellMetricsNode, "HAS_METRICS");
         }
+    }
+
+    private static List<List<String>> parseGoTerms(String data) {
+        // Example: "Cell Junctions (GO:0030054);Cytosol (GO:0005829);Nucleoli fibrillar center (GO:0001650)".
+        final Pattern pattern = Pattern.compile("([\\w\\s]+)\\s*\\((GO:\\d+)\\)");
+        Matcher matcher = pattern.matcher(data);
+        List<String> goTerms = new ArrayList<>();
+        List<String> goIds = new ArrayList<>();
+
+        while (matcher.find()) {
+            goTerms.add(matcher.group(1).trim());
+            goIds.add(matcher.group(2));
+        }
+
+        List<List<String>> result = new ArrayList<>();
+        result.add(goTerms);
+        result.add(goIds);
+        return result;
     }
 
     private void addTranscriptRnaBloodcells(final Workspace workspace, final Graph graph) {
