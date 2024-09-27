@@ -6,7 +6,13 @@ import de.unibi.agbi.biodwh2.core.exceptions.UpdaterException;
 import de.unibi.agbi.biodwh2.core.model.Version;
 import de.unibi.agbi.biodwh2.proteinatlas.ProteinAtlasDataSource;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
+
+    private static final String VERSION_URL = "https://www.proteinatlas.org/about/releases";
+    private static final Pattern VERSION_PATTERN = Pattern.compile("Protein Atlas version ([0-9]+)\\.([0-9]+)");
 
     static final String[] FILE_NAMES = {
             "normal_tissue.tsv.zip", "pathology.tsv.zip", "subcellular_location.tsv.zip", "rna_tissue_consensus.tsv.zip",
@@ -69,10 +75,13 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
         super(dataSource);
     }
 
-    // TODO: Automatically get the newest version.
     @Override
-    protected Version getNewestVersion(final Workspace workspace) {
-        return new Version(2023, 6, 19);
+    protected Version getNewestVersion(final Workspace workspace) throws UpdaterException {
+        final String html = getWebsiteSource(VERSION_URL);
+        final Matcher matcher = VERSION_PATTERN.matcher(html);
+        if (matcher.find())
+            return new Version(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
+        return null;
     }
 
     @Override
