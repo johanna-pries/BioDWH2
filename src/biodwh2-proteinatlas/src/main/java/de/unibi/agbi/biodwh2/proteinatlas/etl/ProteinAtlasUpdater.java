@@ -60,7 +60,7 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
     static final String RNA_CELLINE_FILE_NAME = "rna_celline.tsv.zip";
     static final String RNA_CELLINE_DESCRIPTION_FILE_NAME = "rna_celline_description.tsv.zip";
     static final String RNA_CANCER_SAMPLE_FILE_NAME = "rna_cancer_sample.tsv.zip";
-    // TODO: do this at the end
+    // TODO: Do this at the end.
     static final String TRANSCRIPT_RNA_TISSUE_FILE_NAME = "transcript_rna_tissue.tsv.zip";
     static final String TRANSCRIPT_RNA_BRAIN_FILE_NAME = "transcript_rna_brain.tsv.zip";
     static final String TRANSCRIPT_RNA_GTEX_RETINA_FILE_NAME = "transcript_rna_gtexretina.tsv.zip";
