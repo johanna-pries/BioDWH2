@@ -291,6 +291,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         return node;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Helper methods /////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * Helper method for separating age and gender from data and add them to the builder.
      */
@@ -315,6 +319,27 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                 node.setProperty("age", matcher.group(3));
             }
         }
+    }
+
+    /**
+     * Helper method for parsing GO-Ids and GO-terms into lists.
+     */
+    private static List<List<String>> parseGoTerms(String data) {
+        // Example: "Cell Junctions (GO:0030054);Cytosol (GO:0005829);Nucleoli fibrillar center (GO:0001650)".
+        final Pattern pattern = Pattern.compile("([\\w\\s]+)\\s*\\((GO:\\d+)\\)");
+        Matcher matcher = pattern.matcher(data);
+        List<String> goTerms = new ArrayList<>();
+        List<String> goIds = new ArrayList<>();
+
+        while (matcher.find()) {
+            goTerms.add(matcher.group(1).trim());
+            goIds.add(matcher.group(2));
+        }
+
+        List<List<String>> result = new ArrayList<>();
+        result.add(goTerms);
+        result.add(goIds);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -973,24 +998,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             graph.addEdge(geneNode, cellMetricsNode, "HAS_METRICS");
             graph.addEdge(locationNode, cellMetricsNode, "HAS_METRICS");
         }
-    }
-
-    private static List<List<String>> parseGoTerms(String data) {
-        // Example: "Cell Junctions (GO:0030054);Cytosol (GO:0005829);Nucleoli fibrillar center (GO:0001650)".
-        final Pattern pattern = Pattern.compile("([\\w\\s]+)\\s*\\((GO:\\d+)\\)");
-        Matcher matcher = pattern.matcher(data);
-        List<String> goTerms = new ArrayList<>();
-        List<String> goIds = new ArrayList<>();
-
-        while (matcher.find()) {
-            goTerms.add(matcher.group(1).trim());
-            goIds.add(matcher.group(2));
-        }
-
-        List<List<String>> result = new ArrayList<>();
-        result.add(goTerms);
-        result.add(goIds);
-        return result;
     }
 
     private void addTranscriptRnaBloodcells(final Workspace workspace, final Graph graph) {

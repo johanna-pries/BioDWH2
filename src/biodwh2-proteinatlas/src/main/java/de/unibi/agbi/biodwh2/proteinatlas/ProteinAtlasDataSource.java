@@ -56,7 +56,6 @@ public class ProteinAtlasDataSource extends DataSource {
         return "ProteinAtlas";
     }
 
-    // don't know what this is
     @Override
     public String getLicense() {
         return License.CC_BY_SA_3_0.getName();
