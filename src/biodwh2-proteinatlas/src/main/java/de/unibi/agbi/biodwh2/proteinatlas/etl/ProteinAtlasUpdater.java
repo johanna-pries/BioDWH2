@@ -47,9 +47,10 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
     static final String RNA_PIG_BRAIN_HPA_FILE_NAME = "rna_pig_brain_hpa.tsv.zip";
     static final String RNA_PIG_BRAIN_SAMPLE_HPA_FILE_NAME = "rna_pig_brain_sample_hpa.tsv.zip";
     static final String RNA_MOUSE_BRAIN_HPA_FILE_NAME = "rna_mouse_brain_hpa.tsv.zip";
-    static final String RNA_MOUSE_BRAIN_SAMPLE_HPA_FILE_NAME = "rna_mouse_brain_sample_hpa.tsv.zip";
     static final String RNA_MOUSE_BRAIN_ALLEN_FILE_NAME = "rna_mouse_brain_allen.tsv.zip";
-    static final String RNA_MOUSE_BRAIN_MOUSE_SAMPLE_FILE_NAME = "rna_mouse_brain_mouse_sample.tsv.zip";
+    static final String RNA_MOUSE_BRAIN_SAMPLE_HPA_ZIP_FILE_NAME = "rna_mouse_brain_sample_hpa.tsv.zip";
+    static final String RNA_MOUSE_BRAIN_SAMPLE_HPA_TARGET_FILE_NAME = "rna_mouse_brain_sample_hpa.tsv";
+    static final String RNA_MOUSE_BRAIN_MOUSE_SAMPLE_TARGET_FILE_NAME = "rna_mousebrain_mouse_sample.tsv";
     static final String RNA_IMMUNE_CELL_FILE_NAME = "rna_immune_cell.tsv.zip";
     static final String RNA_IMMUNE_CELL_SAMPLE_FILE_NAME = "rna_immune_cell_sample.tsv.zip";
     // The following file seems to be damaged.
@@ -62,7 +63,8 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
     static final String RNA_CANCER_SAMPLE_FILE_NAME = "rna_cancer_sample.tsv.zip";
     // TODO: Do this at the end.
     static final String TRANSCRIPT_RNA_TISSUE_FILE_NAME = "transcript_rna_tissue.tsv.zip";
-    static final String TRANSCRIPT_RNA_BRAIN_FILE_NAME = "transcript_rna_brain.tsv.zip";
+    static final String TRANSCRIPT_RNA_BRAIN_ZIP_FILE_NAME = "transcript_rna_brain.tsv.zip";
+    static final String TRANSCRIPT_RNA_BRAIN_TARGET_FILE_NAME = "transcript_rna_brain.tsv";
     static final String TRANSCRIPT_RNA_GTEX_RETINA_FILE_NAME = "transcript_rna_gtexretina.tsv.zip";
     static final String TRANSCRIPT_RNA_IMMUNE_CELLS_FILE_NAME = "transcript_rna_immunecells.tsv.zip";
     static final String TRANSCRIPT_RNA_PIG_BRAIN_FILE_NAME = "transcript_rna_pigbrain.tsv.zip";

@@ -14,6 +14,7 @@ import de.unibi.agbi.biodwh2.proteinatlas.ProteinAtlasDataSource;
 import de.unibi.agbi.biodwh2.proteinatlas.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.util.zip.ZipEntry;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,8 +75,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         graph.addIndex(IndexDescription.forNode(PIG_DATA_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(LOCATION_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(CELL_METRICS_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
-        // TODO: Add indices for nodes in remaining files here.
 
+        /*
         addNormalTissues(workspace, graph);
         addPathologies(workspace, graph);
         addRnaBrainFantoms(workspace, graph);
@@ -88,8 +89,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         addRnaImmuneCells(workspace, graph);
         addRnaImmuneCellMonacos(workspace, graph);
         addRnaImmuneCellSamples(workspace, graph);
+        */
         // This files seems to be damaged.
         // addRnaImmuneCellSampleTpmMs(workspace, graph);
+        /*
         addRnaImmuneCellSchmiedels(workspace, graph);
         addRnaMouseBrainAllens(workspace, graph);
         addRnaMouseBrainHpas(workspace, graph);
@@ -121,12 +124,13 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     /*
      * Method for parsing TSV-files which are zipped.
      */
-    private <T> Iterable<T> parseZipTsvFile(final Workspace workspace, final String fileName, final Class<T> typeClass) throws ExporterException {
+    private <T> Iterable<T> parseZipTsvFile(final Workspace workspace, final String fileName, final Class<T> typeClass)
+            throws ExporterException {
+
         try {
             final ZipInputStream stream = FileUtils.openZip(workspace, dataSource, fileName);
-            // TODO: Are the headers skipped because of this? But without it, it does not work.
             stream.getNextEntry();
-            final MappingIterator<T> iterator = FileUtils.openSeparatedValuesFile(stream, typeClass, '\t', false);
+            final MappingIterator<T> iterator = FileUtils.openSeparatedValuesFile(stream, typeClass, '\t', true);
             return () -> iterator;
         } catch (IOException e) {
             throw new ExporterFormatException("Failed to parse the file '" + fileName + "'", e);
@@ -134,14 +138,25 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     }
 
     /*
-     * Method for parsing TSV-files.
+     * Method for parsing TSV-files which are zipped and contain multiple files/entries.
      */
-    private <T> Iterable<T> parseTsvFile(final Workspace workspace, final String fileName, final Class<T> typeClass) throws ExporterException {
+    private <T> Iterable<T> parseZipTsvFile(final Workspace workspace, final String zipFileName,
+                                            final String targetFileName, final Class<T> typeClass)
+            throws ExporterException {
+
         try {
-            final MappingIterator<T> iterator = FileUtils.openTsv(workspace, dataSource, fileName, typeClass);
-            return () -> iterator;
+            final ZipInputStream stream = FileUtils.openZip(workspace, dataSource, zipFileName);
+            ZipEntry entry;
+
+            while ((entry = stream.getNextEntry()) != null) {
+                if (entry.getName().equals(targetFileName)) {
+                    final MappingIterator<T> iterator = FileUtils.openSeparatedValuesFile(stream, typeClass, '\t', true);
+                    return () -> iterator;
+                }
+            }
+            throw new ExporterFormatException("File '" + targetFileName + "' not found in the zip file '" + zipFileName + "'");
         } catch (IOException e) {
-            throw new ExporterFormatException("Failed to parse the file '" + fileName + "'", e);
+            throw new ExporterFormatException("Failed to parse the file '" + zipFileName + "'", e);
         }
     }
 
@@ -586,10 +601,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     }
 
     // I think this data file is damaged. There are not enough column headers for the values.
-    /*
+/*
     private void addRnaImmuneCellSampleTpmMs(final Workspace workspace, final Graph graph) {
     }
-    */
+*/
 
     private void addRnaImmuneCellSchmiedels(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCellSchmiedels...");
@@ -653,10 +668,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
     private void addRnaMouseBrainMouseSamples(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainMouseSamples...");
-        // TODO: check if the parsing works like this.
-        for (final RnaMouseBrainMouseSample rnaMouseBrainMouseSample : parseTsvFile(workspace,
-                                                                                    ProteinAtlasUpdater.RNA_MOUSE_BRAIN_MOUSE_SAMPLE_FILE_NAME,
-                                                                                    RnaMouseBrainMouseSample.class)) {
+        for (final RnaMouseBrainMouseSample rnaMouseBrainMouseSample : parseZipTsvFile(workspace,
+                                                                                       ProteinAtlasUpdater.RNA_MOUSE_BRAIN_SAMPLE_HPA_ZIP_FILE_NAME,
+                                                                                       ProteinAtlasUpdater.RNA_MOUSE_BRAIN_MOUSE_SAMPLE_TARGET_FILE_NAME,
+                                                                                       RnaMouseBrainMouseSample.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainMouseSample.ensmusgId);
             final Node mainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
@@ -688,9 +703,9 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
     private void addRnaMouseBrainSampleHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainSampleHpas...");
-        // TODO: Check if the parsing works like this.
         for (final RnaMouseBrainSampleHpa rnaMouseBrainSampleHpa : parseZipTsvFile(workspace,
-                                                                                   ProteinAtlasUpdater.RNA_MOUSE_BRAIN_SAMPLE_HPA_FILE_NAME,
+                                                                                   ProteinAtlasUpdater.RNA_MOUSE_BRAIN_SAMPLE_HPA_ZIP_FILE_NAME,
+                                                                                   ProteinAtlasUpdater.RNA_MOUSE_BRAIN_SAMPLE_HPA_TARGET_FILE_NAME,
                                                                                    RnaMouseBrainSampleHpa.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaMouseBrainSampleHpa.ensmusgId);
