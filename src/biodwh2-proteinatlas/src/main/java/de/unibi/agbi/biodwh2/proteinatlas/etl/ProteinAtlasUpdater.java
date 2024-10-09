@@ -22,10 +22,10 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
             "rna_single_cell_cluster_description.tsv.zip", "rna_brain_gtex.tsv.zip", "rna_brain_fantom.tsv.zip",
             "rna_pig_brain_hpa.tsv.zip", "rna_pig_brain_sample_hpa.tsv.zip", "rna_mouse_brain_hpa.tsv.zip",
             "rna_mouse_brain_sample_hpa.tsv.zip", "rna_mouse_brain_allen.tsv.zip", "rna_immune_cell.tsv.zip",
-            "rna_immune_cell_sample.tsv.zip", "rna_immune_cell_sample_tpm_m.tsv.zip", "rna_immune_cell_monaco.tsv.zip",
-            "rna_immune_cell_schmiedel.tsv.zip", "rna_celline_cancer.tsv.zip", "rna_celline.tsv.zip",
-            "rna_celline_description.tsv.zip", "rna_cancer_sample.tsv.zip", "transcript_rna_tissue.tsv.zip",
-            "transcript_rna_brain.tsv.zip", "transcript_rna_gtexretina.tsv.zip", "transcript_rna_immunecells.tsv.zip",
+            "rna_immune_cell_sample.tsv.zip", "rna_immune_cell_monaco.tsv.zip", "rna_immune_cell_schmiedel.tsv.zip",
+            "rna_celline_cancer.tsv.zip", "rna_celline.tsv.zip", "rna_celline_description.tsv.zip",
+            "rna_cancer_sample.tsv.zip", "transcript_rna_tissue.tsv.zip", "transcript_rna_brain.tsv.zip",
+            "transcript_rna_gtexretina.tsv.zip", "transcript_rna_immunecells.tsv.zip",
             "transcript_rna_pigbrain.tsv.zip", "transcript_rna_mousebrain.tsv.zip", "proteinatlas.tsv.zip"
     };
 
@@ -53,8 +53,6 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
     static final String RNA_MOUSE_BRAIN_MOUSE_SAMPLE_TARGET_FILE_NAME = "rna_mousebrain_mouse_sample.tsv";
     static final String RNA_IMMUNE_CELL_FILE_NAME = "rna_immune_cell.tsv.zip";
     static final String RNA_IMMUNE_CELL_SAMPLE_FILE_NAME = "rna_immune_cell_sample.tsv.zip";
-    // The following file seems to be damaged.
-    // static final String RNA_IMMUNE_CELL_SAMPLE_TPM_M_FILE_NAME = "rna_immune_cell_sample_tpm_m.tsv.zip";
     static final String RNA_IMMUNE_CELL_MONACO_FILE_NAME = "rna_immune_cell_monaco.tsv.zip";
     static final String RNA_IMMUNE_CELL_SCHMIEDEL_FILE_NAME = "rna_immune_cell_schmiedel.tsv.zip";
     static final String RNA_CELLINE_CANCER_FILE_NAME = "rna_celline_cancer.tsv.zip";

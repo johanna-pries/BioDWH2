@@ -36,7 +36,6 @@ public class ProteinAtlasDataSource extends DataSource {
     public List<RnaMouseBrainMouseSample> rnaMouseBrainMouseSamples;
     public List<RnaImmuneCell> rnaImmuneCells;
     public List<RnaImmuneCellSample> rnaImmuneCellSamples;
-    public List<RnaImmuneCellSampleTpmM> rnaImmuneCellSampleTpmMs;
     public List<RnaImmuneCellMonaco> rnaImmuneCellMonacos;
     public List<RnaImmuneCellSchmiedel> rnaImmuneCellSchmiedels;
     public List<RnaCellineCancer> rnaCellineCancers;
@@ -120,7 +119,6 @@ public class ProteinAtlasDataSource extends DataSource {
         rnaMouseBrainMouseSamples = null;
         rnaImmuneCells = null;
         rnaImmuneCellSamples = null;
-        rnaImmuneCellSampleTpmMs = null;
         rnaImmuneCellMonacos = null;
         rnaImmuneCellSchmiedels = null;
         rnaCellineCancers = null;
