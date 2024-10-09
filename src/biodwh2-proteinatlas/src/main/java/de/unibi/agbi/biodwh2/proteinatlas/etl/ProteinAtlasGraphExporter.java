@@ -76,35 +76,36 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         graph.addIndex(IndexDescription.forNode(LOCATION_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(CELL_METRICS_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
 
-        addNormalTissues(workspace, graph);
-        addPathologies(workspace, graph);
-        addRnaBrainFantoms(workspace, graph);
-        addRnaBrainGtexes(workspace, graph);
-        addRnaBrainHpas(workspace, graph);
-        addRnaCancerSamples(workspace, graph);
-        addRnaCellines(workspace, graph);
-        addRnaCellineCancers(workspace, graph);
-        addRnaCellineDescriptions(workspace, graph);
-        addRnaImmuneCells(workspace, graph);
-        addRnaImmuneCellMonacos(workspace, graph);
-        addRnaImmuneCellSamples(workspace, graph);
-        addRnaImmuneCellSchmiedels(workspace, graph);
-        addRnaMouseBrainAllens(workspace, graph);
-        addRnaMouseBrainHpas(workspace, graph);
-        addRnaMouseBrainMouseSamples(workspace, graph);
-        addRnaMouseBrainSampleHpas(workspace, graph);
-        addRnaPfcBrainHpas(workspace, graph);
-        addRnaPigBrainHpas(workspace, graph);
-        addRnaPigBrainSampleHpas(workspace, graph);
-        addRnaSingleCellClusterDescriptions(workspace, graph);
-        addRnaSingleCellTypes(workspace, graph);
-        addRnaSingleCellTypeTissues(workspace, graph);
-        addRnaTissueConsensuses(workspace, graph);
-        addRnaTissueFantoms(workspace, graph);
-        addRnaTissueGtexes(workspace, graph);
-        addRnaTissueHpas(workspace, graph);
-        addRnaTissueHpaDescription(workspace, graph);
-        addSubcellularLocations(workspace, graph);
+        addNormalTissues(workspace, graph);                       //very slow
+        addPathologies(workspace, graph);                         //fast
+        addRnaBrainFantoms(workspace, graph);                     //fast
+        addRnaBrainGtexes(workspace, graph);                      //fast
+        addRnaBrainHpas(workspace, graph);                        //very slow
+        addRnaCancerSamples(workspace, graph);                    //fast
+        addRnaCellines(workspace, graph);                         //fast
+        addRnaCellineCancers(workspace, graph);                   //fast
+        addRnaCellineDescriptions(workspace, graph);              //very fast
+        addRnaImmuneCells(workspace, graph);                      //fast
+        addRnaImmuneCellMonacos(workspace, graph);                //fast
+        addRnaImmuneCellSamples(workspace, graph);                //very fast
+        addRnaImmuneCellSchmiedels(workspace, graph);             //fast
+        addRnaMouseBrainAllens(workspace, graph);                 //fast
+        addRnaMouseBrainHpas(workspace, graph);                   //fast
+        addRnaMouseBrainMouseSamples(workspace, graph);           //slow
+        addRnaMouseBrainSampleHpas(workspace, graph);             //slow
+        addRnaPfcBrainHpas(workspace, graph);                     //fast
+        addRnaPigBrainHpas(workspace, graph);                     //fast
+        addRnaPigBrainSampleHpas(workspace, graph);               //very slow
+        addRnaPigBrainPigSamples(workspace, graph);               //very slow
+        addRnaSingleCellClusterDescriptions(workspace, graph);    //very fast
+        addRnaSingleCellTypes(workspace, graph);                  //very slow
+        addRnaSingleCellTypeTissues(workspace, graph);            //very slow
+        addRnaTissueConsensuses(workspace, graph);                //slow
+        addRnaTissueFantoms(workspace, graph);                    //slow
+        addRnaTissueGtexes(workspace, graph);                     //fast
+        addRnaTissueHpas(workspace, graph);                       //fast
+        addRnaTissueHpaDescription(workspace, graph);             //very fast
+        addSubcellularLocations(workspace, graph);                //very fast
         /*
         addTranscriptRnaBloodcells(workspace, graph);
         addTranscriptRnaBrains(workspace, graph);
@@ -466,7 +467,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     private void addRnaCancerSamples(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaCancerSamples...");
         for (final RnaCancerSample rnaCancerSample: parseZipTsvFile(workspace,
-                                                                    ProteinAtlasUpdater.RNA_CANCER_SAMPLE_FILE_NAME,
+                                                                    ProteinAtlasUpdater.RNA_CANCER_SAMPLE_ZIP_FILE_NAME,
+                                                                    ProteinAtlasUpdater.RNA_CANCER_SAMPLE_TARGET_FILE_NAME,
                                                                     RnaCancerSample.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaCancerSample.gene);
@@ -785,7 +787,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     private void addRnaPigBrainSampleHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaPigBrainSampleHpas...");
         for (final RnaPigBrainSampleHpa rnaPigBrainSampleHpa : parseZipTsvFile(workspace,
-                                                                               ProteinAtlasUpdater.RNA_PIG_BRAIN_SAMPLE_HPA_FILE_NAME,
+                                                                               ProteinAtlasUpdater.RNA_PIG_BRAIN_SAMPLE_HPA_ZIP_FILE_NAME,
+                                                                               ProteinAtlasUpdater.RNA_PIG_BRAIN_SAMPLE_HPA_TARGET_FILE_NAME,
                                                                                RnaPigBrainSampleHpa.class)) {
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaPigBrainSampleHpa.enssscgId);
@@ -808,6 +811,42 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
             graph.addEdge(subRegionNode, geneNode, "CONTAINS_EXPRESSED");
             if (!Objects.equals(rnaPigBrainSampleHpa.mainRegion, rnaPigBrainSampleHpa.subregion)) {
+                graph.addEdge(mainRegionNode, subRegionNode, "HAS_SUBREGION");
+                graph.addEdge(subRegionNode, mainRegionNode, "IS_SUBREGION_OF");
+            }
+            graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(pigDataNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(subRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+        }
+    }
+
+    // source: Human Protein Atlas
+    private void addRnaPigBrainPigSamples(final Workspace workspace, final Graph graph) {
+        LOGGER.info("Add RnaPigBrainPigSamples...");
+        for (final RnaPigBrainPigSample rnaPigBrainPigSample : parseZipTsvFile(workspace,
+                                                                               ProteinAtlasUpdater.RNA_PIG_BRAIN_SAMPLE_HPA_ZIP_FILE_NAME,
+                                                                               ProteinAtlasUpdater.RNA_PIG_BRAIN_PIG_SAMPLE_TARGET_FILE_NAME,
+                                                                               RnaPigBrainPigSample.class)) {
+
+            final Node geneNode = getOrCreateGeneNode(graph, rnaPigBrainPigSample.ensmusgId);
+            final Node mainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                        rnaPigBrainPigSample.mainRegion.toLowerCase());
+            final Node subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
+                                                       rnaPigBrainPigSample.subregion.toLowerCase());
+            // TODO: Maybe rename node label?
+            final Node pigDataNode = graph.addNode(PIG_DATA_LABEL);
+            if (rnaPigBrainPigSample.animal != null) {
+                // Examples: "female 1" or "male 2".
+                separateAndAddGenderAndAge(pigDataNode, Pattern.compile("(female|male)?(\\s)?(\\d+)?"),
+                                           rnaPigBrainPigSample.animal);
+            }
+            final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaPigBrainPigSample.tpm, null,
+                                                                           rnaPigBrainPigSample.pTpm,
+                                                                           null, null, null, null, null, null, null);
+
+            graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
+            graph.addEdge(subRegionNode, geneNode, "CONTAINS_EXPRESSED");
+            if (!Objects.equals(rnaPigBrainPigSample.mainRegion, rnaPigBrainPigSample.subregion)) {
                 graph.addEdge(mainRegionNode, subRegionNode, "HAS_SUBREGION");
                 graph.addEdge(subRegionNode, mainRegionNode, "IS_SUBREGION_OF");
             }

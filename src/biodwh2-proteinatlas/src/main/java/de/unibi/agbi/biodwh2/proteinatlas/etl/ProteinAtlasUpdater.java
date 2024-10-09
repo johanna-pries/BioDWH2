@@ -45,7 +45,9 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
     static final String RNA_BRAIN_GTEX_FILE_NAME = "rna_brain_gtex.tsv.zip";
     static final String RNA_BRAIN_FANTOM_FILE_NAME = "rna_brain_fantom.tsv.zip";
     static final String RNA_PIG_BRAIN_HPA_FILE_NAME = "rna_pig_brain_hpa.tsv.zip";
-    static final String RNA_PIG_BRAIN_SAMPLE_HPA_FILE_NAME = "rna_pig_brain_sample_hpa.tsv.zip";
+    static final String RNA_PIG_BRAIN_SAMPLE_HPA_ZIP_FILE_NAME = "rna_pig_brain_sample_hpa.tsv.zip";
+    static final String RNA_PIG_BRAIN_SAMPLE_HPA_TARGET_FILE_NAME = "rna_pig_brain_sample_hpa.tsv";
+    static final String RNA_PIG_BRAIN_PIG_SAMPLE_TARGET_FILE_NAME = "rna_pigbrain_pig_sample.tsv";
     static final String RNA_MOUSE_BRAIN_HPA_FILE_NAME = "rna_mouse_brain_hpa.tsv.zip";
     static final String RNA_MOUSE_BRAIN_ALLEN_FILE_NAME = "rna_mouse_brain_allen.tsv.zip";
     static final String RNA_MOUSE_BRAIN_SAMPLE_HPA_ZIP_FILE_NAME = "rna_mouse_brain_sample_hpa.tsv.zip";
@@ -58,7 +60,8 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
     static final String RNA_CELLINE_CANCER_FILE_NAME = "rna_celline_cancer.tsv.zip";
     static final String RNA_CELLINE_FILE_NAME = "rna_celline.tsv.zip";
     static final String RNA_CELLINE_DESCRIPTION_FILE_NAME = "rna_celline_description.tsv.zip";
-    static final String RNA_CANCER_SAMPLE_FILE_NAME = "rna_cancer_sample.tsv.zip";
+    static final String RNA_CANCER_SAMPLE_ZIP_FILE_NAME = "rna_cancer_sample.tsv.zip";
+    static final String RNA_CANCER_SAMPLE_TARGET_FILE_NAME = "rna_cancer_sample_109.tsv";
     // TODO: Do this at the end.
     static final String TRANSCRIPT_RNA_TISSUE_FILE_NAME = "transcript_rna_tissue.tsv.zip";
     static final String TRANSCRIPT_RNA_BRAIN_ZIP_FILE_NAME = "transcript_rna_brain.tsv.zip";

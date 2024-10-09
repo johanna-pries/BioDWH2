@@ -30,6 +30,7 @@ public class ProteinAtlasDataSource extends DataSource {
     public List<RnaBrainFantom> rnaBrainFantoms;
     public List<RnaPigBrainHpa> rnaPigBrainHpas;
     public List<RnaPigBrainSampleHpa> rnaPigBrainSampleHpas;
+    public List<RnaPigBrainPigSample> rnaPigBrainPigSamples;
     public List<RnaMouseBrainSampleHpa> rnaMouseBrainSampleHpas;
     public List<RnaMouseBrainAllen> rnaMouseBrainAllens;
     public List<RnaMouseBrainHpa> rnaMouseBrainHpas;
@@ -113,6 +114,7 @@ public class ProteinAtlasDataSource extends DataSource {
         rnaBrainFantoms = null;
         rnaPigBrainHpas = null;
         rnaPigBrainSampleHpas = null;
+        rnaPigBrainPigSamples = null;
         rnaMouseBrainAllens = null;
         rnaMouseBrainSampleHpas = null;
         rnaMouseBrainHpas = null;
