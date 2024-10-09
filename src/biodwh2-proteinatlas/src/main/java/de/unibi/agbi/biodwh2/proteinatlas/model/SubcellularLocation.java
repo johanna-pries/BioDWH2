@@ -2,9 +2,7 @@ package de.unibi.agbi.biodwh2.proteinatlas.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import de.unibi.agbi.biodwh2.core.model.graph.GraphNodeLabel;
 
-@GraphNodeLabel("SubcellularLocation")
 @JsonPropertyOrder({
         "Gene", "Gene name", "Reliability", "Main location", "Additional location", "Extracellular location", "Enhanced", "Supported", "Approved", "Uncertain", "Single-cell variation intensity", "Single-cell variation spatial", "Cell cycle dependency", "GO id"
 })
