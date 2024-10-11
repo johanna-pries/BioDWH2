@@ -386,7 +386,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
             final Node geneNode = getOrCreateGeneNode(graph, pathology.gene, pathology.geneName);
             final Node cancerNode = getOrCreateNode(graph, CANCER_LABEL, "type", pathology.cancer);
-            final Node expressionLevelsNode = graph.addNode(PATIENTS_PER_STAINING_LEVELS_LABEL, "high",
+            final Node patientsStainingLevelNode = graph.addNode(PATIENTS_PER_STAINING_LEVELS_LABEL, "high",
                                                             pathology.high, "medium", pathology.medium, "low",
                                                             pathology.low, "notDetected", pathology.notDetected);
             final Node prognosticDataNode = graph.addNode(PATIENT_SURVIVAL_MRNA_CORRELATION_LABEL, "prognosticFavorable",
@@ -397,8 +397,8 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
             graph.addEdge(geneNode, cancerNode, "ASSOCIATED_WITH");
             graph.addEdge(cancerNode, geneNode, "ASSOCIATED_WITH");
-            graph.addEdge(geneNode, expressionLevelsNode, "HAS_EXPRESSIONS_LEVELS");
-            graph.addEdge(cancerNode, expressionLevelsNode, "HAS_EXPRESSIONS_LEVELS");
+            graph.addEdge(geneNode, patientsStainingLevelNode, "HAS_EXPRESSIONS_LEVELS");
+            graph.addEdge(cancerNode, patientsStainingLevelNode, "HAS_EXPRESSIONS_LEVELS");
             graph.addEdge(geneNode, prognosticDataNode, "HAS_PROGNOSTIC_DATA");
             graph.addEdge(cancerNode, prognosticDataNode, "HAS_PROGNOSTIC_DATA");
         }
@@ -413,10 +413,9 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
 
             final Node geneNode = getOrCreateGeneNode(graph, rnaBrainFantom.gene, rnaBrainFantom.geneName);
             final Node brainRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name", rnaBrainFantom.brainRegion);
-            final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainFantom.tagsPerMillion,
-                                                                           rnaBrainFantom.scaledTagsPerMillion, null,
-                                                                           rnaBrainFantom.nTpm, null, null, null, null,
-                                                                           null, null);
+            final Node expressionMetricsNode = createExpressionMetricsNode(graph, null, null, null, rnaBrainFantom.nTpm,
+                                                                           null, null, null, rnaBrainFantom.tagsPerMillion,
+                                                                           rnaBrainFantom.scaledTagsPerMillion, null);
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
             graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
