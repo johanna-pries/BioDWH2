@@ -360,9 +360,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                           "reliability", normalTissue.reliability);
 
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
-            graph.addEdge(tissueNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(tissueNode, cellTypeNode, "CONTAINS");
-            graph.addEdge(cellTypeNode, tissueNode, "CONTAINED_IN");
             graph.addEdge(geneNode, expressionDataNode, "ASSOCIATED_WITH");
             graph.addEdge(tissueNode, expressionDataNode, "ASSOCIATED_WITH");
             graph.addEdge(cellTypeNode, expressionDataNode, "ASSOCIATED_WITH");
@@ -386,7 +384,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                           pathology.unprognosticUnfavorable);
 
             graph.addEdge(geneNode, cancerNode, "ASSOCIATED_WITH");
-            graph.addEdge(cancerNode, geneNode, "ASSOCIATED_WITH");
             graph.addEdge(geneNode, patientsStainingLevelNode, "HAS_EXPRESSIONS_LEVELS");
             graph.addEdge(cancerNode, patientsStainingLevelNode, "HAS_EXPRESSIONS_LEVELS");
             graph.addEdge(geneNode, prognosticDataNode, "HAS_PROGNOSTIC_DATA");
@@ -408,7 +405,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            rnaBrainFantom.scaledTagsPerMillion, null);
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
-            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -427,7 +423,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null);
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
-            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -446,7 +441,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null);
 
             graph.addEdge(geneNode, subregionNode, "EXPRESSED_IN");
-            graph.addEdge(subregionNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(subregionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -467,7 +461,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null);
 
             graph.addEdge(geneNode, sampleNode, "EXPRESSED_IN");
-            graph.addEdge(sampleNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(sampleNode, cancerNode, "HAS_CANCER_TYPE");
             graph.addEdge(sampleNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -487,7 +480,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null);
 
             graph.addEdge(geneNode, cellLineNode, "EXPRESSED_IN");
-            graph.addEdge(cellLineNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(cellLineNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -507,7 +499,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null, null);
 
             graph.addEdge(geneNode, cancerNode, "EXPRESSED_IN");
-            graph.addEdge(cancerNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(cancerNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -539,7 +530,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null);
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
-            graph.addEdge(immuneCellNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(immuneCellNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -560,7 +550,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null);
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
-            graph.addEdge(immuneCellNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(immuneCellNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -576,8 +565,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node geneNode = getOrCreateGeneNode(graph, rnaImmuneCellSample.ensgId, rnaImmuneCellSample.geneName);
             final Node immuneCellNode = getOrCreateNode(graph, IMMUNE_CELL_LABEL, "name",
                                                         rnaImmuneCellSample.immuneCell);
-            // TODO: Leave this in here or not? Not a real ID!
-            // final Node sampleNode = graph.addNode(SAMPLE_LABEL, "id", rnaImmuneCellSample.sampleId);
             final Node donorNode = graph.addNode(DONOR_LABEL, "name", rnaImmuneCellSample.donor);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaImmuneCellSample.tpm,
                                                                            rnaImmuneCellSample.pTpm,
@@ -585,13 +572,9 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null);
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
-            graph.addEdge(immuneCellNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(immuneCellNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(donorNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
-            // TODO: Leave this in here or not?
-            // graph.addEdge(sampleNode, donorNode, "SAMPLED_FROM");
-            // graph.addEdge(sampleNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
     }
 
@@ -609,7 +592,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null, null, null);
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
-            graph.addEdge(immuneCellNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(immuneCellNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -630,7 +612,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null);
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
-            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -651,7 +632,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null, null);
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
-            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -682,9 +662,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null);
 
             graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
-            graph.addEdge(subRegionNode, geneNode, "CONTAINS_EXPRESSED");
             if (!Objects.equals(rnaMouseBrainMouseSample.mainRegion, rnaMouseBrainMouseSample.subregion)) {
-                graph.addEdge(mainRegionNode, subRegionNode, "HAS_SUBREGION");
                 graph.addEdge(subRegionNode, mainRegionNode, "IS_SUBREGION_OF");
             }
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
@@ -719,9 +697,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null);
 
             graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
-            graph.addEdge(subRegionNode, geneNode, "CONTAINS_EXPRESSED");
             if (!Objects.equals(rnaMouseBrainSampleHpa.mainRegion, rnaMouseBrainSampleHpa.subregion)) {
-                graph.addEdge(mainRegionNode, subRegionNode, "HAS_SUBREGION");
                 graph.addEdge(subRegionNode, mainRegionNode, "IS_SUBREGION_OF");
             }
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
@@ -744,7 +720,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null, null);
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
-            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -764,7 +739,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null, null);
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
-            graph.addEdge(brainRegionNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -796,9 +770,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null);
 
             graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
-            graph.addEdge(subRegionNode, geneNode, "CONTAINS_EXPRESSED");
             if (!Objects.equals(rnaPigBrainSampleHpa.mainRegion, rnaPigBrainSampleHpa.subregion)) {
-                graph.addEdge(mainRegionNode, subRegionNode, "HAS_SUBREGION");
                 graph.addEdge(subRegionNode, mainRegionNode, "IS_SUBREGION_OF");
             }
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
@@ -832,9 +804,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null, null, null);
 
             graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
-            graph.addEdge(subRegionNode, geneNode, "CONTAINS_EXPRESSED");
             if (!Objects.equals(rnaPigBrainPigSample.mainRegion, rnaPigBrainPigSample.subregion)) {
-                graph.addEdge(mainRegionNode, subRegionNode, "HAS_SUBREGION");
                 graph.addEdge(subRegionNode, mainRegionNode, "IS_SUBREGION_OF");
             }
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
@@ -860,7 +830,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                        rnaSingleCellClusterDescription.cellCount);
 
             graph.addEdge(cellTypeNode, cellTypeGroupNode, "BELONGS_TO");
-            graph.addEdge(cellTypeGroupNode, cellTypeNode, "INCLUDES");
             graph.addEdge(cellTypeNode, clusterDataNode, "HAS_CLUSTER_DATA");
             graph.addEdge(tissueNode, clusterDataNode, "HAS_CLUSTER_DATA");
         }
@@ -879,7 +848,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null, null);
 
             graph.addEdge(geneNode, cellTypeNode, "EXPRESSED_IN");
-            graph.addEdge(cellTypeNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(cellTypeNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -902,9 +870,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null);
 
             graph.addEdge(geneNode, cellTypeNode, "EXPRESSED_IN");
-            graph.addEdge(cellTypeNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
-            graph.addEdge(tissueNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(cellTypeNode, clusterDataNode, "HAS_CLUSTER_DATA");
             graph.addEdge(tissueNode, clusterDataNode, "HAS_CLUSTER_DATA");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
@@ -928,7 +894,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null, null, null, null, null);
 
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
-            graph.addEdge(tissueNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(tissueNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -949,7 +914,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            rnaTissueFantom.normalizedTagsPerMillion);
 
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
-            graph.addEdge(tissueNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(tissueNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -968,7 +932,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null);
 
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
-            graph.addEdge(tissueNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(tissueNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -987,7 +950,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            null, null);
 
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
-            graph.addEdge(tissueNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(tissueNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
         }
@@ -1007,12 +969,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                    rnaTissueHpaDescription.organ.toLowerCase());
 
             if (!Objects.equals(rnaTissueHpaDescription.tissue, rnaTissueHpaDescription.tissueGroup)) {
-                graph.addEdge(tissueNode, tissueGroupNode, "PART_OF");
-                graph.addEdge(tissueGroupNode, tissueNode, "HAS_PART");
+                graph.addEdge(tissueNode, tissueGroupNode, "IS_PART_OF");
             }
             if (!Objects.equals(rnaTissueHpaDescription.tissueGroup, rnaTissueHpaDescription.organ)) {
-                graph.addEdge(tissueGroupNode, organNode, "PART_OF");
-                graph.addEdge(organNode, tissueGroupNode, "HAS_PART");
+                graph.addEdge(tissueGroupNode, organNode, "IS_PART_OF");
             }
         }
     }
@@ -1048,7 +1008,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                        "cellCycleDependency", subcellularLocation.cellCycleDependency);
 
             graph.addEdge(geneNode, locationNode, "EXPRESSED_IN");
-            graph.addEdge(locationNode, geneNode, "CONTAINS_EXPRESSED");
             graph.addEdge(geneNode, cellMetricsNode, "HAS_METRICS");
             graph.addEdge(locationNode, cellMetricsNode, "HAS_METRICS");
         }
