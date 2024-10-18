@@ -45,6 +45,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     private static final String CLUSTER_DATA_LABEL = "clusterData";
     private static final String LOCATION_LABEL = "location";
     private static final String CELL_METRICS_LABEL = "cellMetrics";
+    private static final String SOURCE_LABEL = "source";
 
     public ProteinAtlasGraphExporter(final ProteinAtlasDataSource dataSource) {
         super(dataSource);
@@ -347,7 +348,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
     // Methods for adding the parsed files. ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // source: Human Protein Atlas?
     private void addNormalTissues(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add NormalTissues...");
         for (NormalTissue normalTissue : parseZipTsvFile(workspace, ProteinAtlasUpdater.NORMAL_TISSUE_FILE_NAME,
@@ -391,7 +391,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    // source FANTOM5
     private void addRnaBrainFantoms(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaBrainFantoms...");
         for (final RnaBrainFantom rnaBrainFantom: parseZipTsvFile(workspace,
@@ -403,14 +402,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, null, null, rnaBrainFantom.nTpm, null,
                                                                            null, null, rnaBrainFantom.tagsPerMillion,
                                                                            rnaBrainFantom.scaledTagsPerMillion, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "FANTOM5");
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: GTEx
     private void addRnaBrainGtexes(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaBrainGtexes...");
         for (final RnaBrainGtex rnaBrainGtex: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_BRAIN_GTEX_FILE_NAME,
@@ -421,14 +421,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainGtex.tpm, rnaBrainGtex.pTpm,
                                                                            rnaBrainGtex.nTpm, null, null, null, null,
                                                                            null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "GTEx");
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas
     private void addRnaBrainHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaBrainHpas...");
         for (final RnaBrainHpa rnaBrainHpa: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_BRAIN_HPA_FILE_NAME,
@@ -439,14 +440,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaBrainHpa.tpm, rnaBrainHpa.pTpm,
                                                                            rnaBrainHpa.nTpm, null, null, null, null,
                                                                            null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Human Protein Atlas");
 
             graph.addEdge(geneNode, subregionNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(subregionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: The Cancer Genome Atlas (TCGA)?
     private void addRnaCancerSamples(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaCancerSamples...");
         for (final RnaCancerSample rnaCancerSample: parseZipTsvFile(workspace,
@@ -459,14 +461,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node cancerNode = getOrCreateNode(graph, CANCER_LABEL, "type", rnaCancerSample.cancer);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, null, null, null, rnaCancerSample.fpkm,
                                                                            null, null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "The Cancer Genome Atlas (TCGA)");
 
             graph.addEdge(geneNode, sampleNode, "EXPRESSED_IN");
             graph.addEdge(sampleNode, cancerNode, "HAS_CANCER_TYPE");
             graph.addEdge(sampleNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas?
     private void addRnaCellines(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaCellines...");
         for (final RnaCelline rnaCelline: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_CELLINE_FILE_NAME,
@@ -485,7 +488,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    // source: Human Protein Atlas?
     private void addRnaCellineCancers(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaCellineCancers...");
         for (final RnaCellineCancer rnaCellineCancer: parseZipTsvFile(workspace,
@@ -517,7 +519,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    // source: Human Protein Atlas?
     private void addRnaImmuneCells(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCells...");
         for (final RnaImmuneCell rnaImmuneCell: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_IMMUNE_CELL_FILE_NAME,
@@ -535,7 +536,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    // source: Monaco publication
     private void addRnaImmuneCellMonacos(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCellMonacos...");
         for (final RnaImmuneCellMonaco rnaImmuneCellMonaco: parseZipTsvFile(workspace,
@@ -548,14 +548,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaImmuneCellMonaco.tpm,
                                                                            rnaImmuneCellMonaco.pTpm, null, null, null,
                                                                            null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Monaco publication");
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(immuneCellNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas?
     private void addRnaImmuneCellSamples(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCellSamples...");
         for (final RnaImmuneCellSample rnaImmuneCellSample: parseZipTsvFile(workspace,
@@ -578,7 +579,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    // source: Schmiedel publication
     private void addRnaImmuneCellSchmiedels(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaImmuneCellSchmiedels...");
         for (final RnaImmuneCellSchmiedel rnaImmuneCellSchmiedel: parseZipTsvFile(workspace,
@@ -590,14 +590,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                         rnaImmuneCellSchmiedel.immuneCell);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaImmuneCellSchmiedel.tpm, null,
                                                                            null, null, null, null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Schmiedel publication");
 
             graph.addEdge(geneNode, immuneCellNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(immuneCellNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Allen Brain Atlas
     private void addRnaMouseBrainAllens(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainAllens...");
         for (final RnaMouseBrainAllen rnaMouseBrainAllen: parseZipTsvFile(workspace,
@@ -610,14 +611,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, null, null, null, null,
                                                                            rnaMouseBrainAllen.expressionEnergy, null,
                                                                            null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Allen Brain Atlas");
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas
     private void addRnaMouseBrainHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainHpas...");
         for (final RnaMouseBrainHpa rnaMouseBrainHpa : parseZipTsvFile(workspace,
@@ -630,14 +632,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaMouseBrainHpa.tpm,
                                                                            rnaMouseBrainHpa.pTpm, rnaMouseBrainHpa.nTpm,
                                                                            null, null, null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Human Protein Atlas");
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas?
     private void addRnaMouseBrainMouseSamples(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainMouseSamples...");
         for (final RnaMouseBrainMouseSample rnaMouseBrainMouseSample : parseZipTsvFile(workspace,
@@ -671,7 +674,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    // source: Human Protein Atlas
     private void addRnaMouseBrainSampleHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaMouseBrainSampleHpas...");
         for (final RnaMouseBrainSampleHpa rnaMouseBrainSampleHpa : parseZipTsvFile(workspace,
@@ -695,6 +697,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            rnaMouseBrainSampleHpa.pTpm,
                                                                            rnaMouseBrainSampleHpa.nTpm, null, null,
                                                                            null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Human Protein Atlas");
 
             graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
             if (!Objects.equals(rnaMouseBrainSampleHpa.mainRegion, rnaMouseBrainSampleHpa.subregion)) {
@@ -703,10 +706,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(mouseDataNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(subRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas
     private void addRnaPfcBrainHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaPfcBrainHpas...");
         for (final RnaPfcBrainHpa rnaPfcBrainHpa: parseZipTsvFile(workspace,
@@ -718,14 +721,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaPfcBrainHpa.tpm,
                                                                            rnaPfcBrainHpa.pTpm, rnaPfcBrainHpa.nTpm,
                                                                            null, null, null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Human Protein Atlas");
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas
     private void addRnaPigBrainHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaPigBrainHpas...");
         for (final RnaPigBrainHpa rnaPigBrainHpa: parseZipTsvFile(workspace,
@@ -737,14 +741,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaPigBrainHpa.tpm,
                                                                            rnaPigBrainHpa.pTpm, rnaPigBrainHpa.nTpm,
                                                                            null, null, null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Human Protein Atlas");
 
             graph.addEdge(geneNode, brainRegionNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(brainRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas
     private void addRnaPigBrainSampleHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaPigBrainSampleHpas...");
         for (final RnaPigBrainSampleHpa rnaPigBrainSampleHpa : parseZipTsvFile(workspace,
@@ -768,6 +773,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            rnaPigBrainSampleHpa.pTpm,
                                                                            rnaPigBrainSampleHpa.nTpm, null,
                                                                            null, null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Human Protein Atlas");
 
             graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
             if (!Objects.equals(rnaPigBrainSampleHpa.mainRegion, rnaPigBrainSampleHpa.subregion)) {
@@ -776,10 +782,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(pigDataNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(subRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas
     private void addRnaPigBrainPigSamples(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaPigBrainPigSamples...");
         for (final RnaPigBrainPigSample rnaPigBrainPigSample : parseZipTsvFile(workspace,
@@ -802,6 +808,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaPigBrainPigSample.tpm,
                                                                            rnaPigBrainPigSample.pTpm,
                                                                            null, null, null, null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Human Protein Atlas");
 
             graph.addEdge(geneNode, subRegionNode, "EXPRESSED_IN");
             if (!Objects.equals(rnaPigBrainPigSample.mainRegion, rnaPigBrainPigSample.subregion)) {
@@ -810,6 +817,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(pigDataNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(subRegionNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
@@ -835,7 +843,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         }
     }
 
-    // source: 31 datasets from different sources
     private void addRnaSingleCellTypes(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaSingleCellTypes...");
         for (final RnaSingleCellType rnaSingleCellType: parseZipTsvFile(workspace,
@@ -846,14 +853,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node cellTypeNode = getOrCreateNode(graph, CELL_TYPE_LABEL, "name", rnaSingleCellType.cellType);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, null, null, rnaSingleCellType.nTpm,
                                                                            null, null, null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "various datasets");
 
             graph.addEdge(geneNode, cellTypeNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(cellTypeNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: 31 datasets from different sources
     private void addRnaSingleCellTypeTissues(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaSingleCellTypeTissues...");
         for (final RnaSingleCellTypeTissue rnaSingleCellTypeTissue: parseZipTsvFile(workspace,
@@ -868,6 +876,7 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            rnaSingleCellTypeTissue.nTpm, null, null,
                                                                            rnaSingleCellTypeTissue.readCount, null,
                                                                            null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "various datasets");
 
             graph.addEdge(geneNode, cellTypeNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
@@ -877,10 +886,10 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             graph.addEdge(cellTypeNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(tissueNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(clusterDataNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas & GTEx
     private void addRnaTissueConsensuses(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaTissueConsensuses...");
         for (final RnaTissueConsensus rnaTissueConsensus: parseZipTsvFile(workspace,
@@ -892,14 +901,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                          rnaTissueConsensus.tissue);
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, null, null, rnaTissueConsensus.nTpm,
                                                                            null, null, null, null, null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "various datasets");
 
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(tissueNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: FANTOM5
     private void addRnaTissueFantoms(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaTissueFantoms...");
         for (final RnaTissueFantom rnaTissueFantom: parseZipTsvFile(workspace,
@@ -912,14 +922,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
                                                                            rnaTissueFantom.tagsPerMillion,
                                                                            rnaTissueFantom.scaledTagsPerMillion,
                                                                            rnaTissueFantom.normalizedTagsPerMillion);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "FANTOM5");
 
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(tissueNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: GTEx
     private void addRnaTissueGtexes(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaTissueGtexes...");
         for (final RnaTissueGtex rnaTissueGtex: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_TISSUE_GTEX_FILE_NAME,
@@ -930,14 +941,15 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaTissueGtex.tpm, rnaTissueGtex.pTpm,
                                                                            rnaTissueGtex.nTpm, null, null, null, null,
                                                                            null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "GTEx");
 
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(tissueNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
-    // source: Human Protein Atlas
     private void addRnaTissueHpas(final Workspace workspace, final Graph graph) {
         LOGGER.info("Add RnaTissueHpas...");
         for (final RnaTissueHpa rnaTissueHpa: parseZipTsvFile(workspace, ProteinAtlasUpdater.RNA_TISSUE_HPA_FILE_NAME,
@@ -948,10 +960,12 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Node expressionMetricsNode = createExpressionMetricsNode(graph, rnaTissueHpa.tpm, rnaTissueHpa.pTpm,
                                                                            rnaTissueHpa.nTpm, null, null, null, null,
                                                                            null, null);
+            final Node sourceNode = getOrCreateNode(graph, SOURCE_LABEL, "name", "Human Protein Atlas");
 
             graph.addEdge(geneNode, tissueNode, "EXPRESSED_IN");
             graph.addEdge(geneNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
             graph.addEdge(tissueNode, expressionMetricsNode, "HAS_EXPRESSION_METRICS");
+            graph.addEdge(expressionMetricsNode, sourceNode, "FROM_SOURCE");
         }
     }
 
