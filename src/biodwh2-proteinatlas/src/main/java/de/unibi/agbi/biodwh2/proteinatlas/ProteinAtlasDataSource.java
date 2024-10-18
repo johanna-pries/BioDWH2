@@ -43,13 +43,6 @@ public class ProteinAtlasDataSource extends DataSource {
     public List<RnaCelline> rnaCellines;
     public List<RnaCellineDescription> rnaCellineDescriptions;
     public List<RnaCancerSample> rnaCancerSamples;
-    public List<TranscriptRnaTissue> transcriptRnaTissues;
-    public List<TranscriptRnaBrain> transcriptRnaBrains;
-    public List<TranscriptRnaGtexRetina> transcriptRnaGtexretinas;
-    public List<TranscriptRnaBloodcells> transcriptRnaBloodcells;
-    public List<TranscriptRnaPigBrain> transcriptRnaPigbrains;
-    public List<TranscriptRnaMouseBrain> transcriptRnaMousebrains;
-    public List<Proteinatlas> proteinatlas;
 
     @Override
     public String getId() {
@@ -127,12 +120,5 @@ public class ProteinAtlasDataSource extends DataSource {
         rnaCellines = null;
         rnaCellineDescriptions = null;
         rnaCancerSamples = null;
-        transcriptRnaTissues = null;
-        transcriptRnaBrains = null;
-        transcriptRnaGtexretinas = null;
-        transcriptRnaBloodcells = null;
-        transcriptRnaPigbrains = null;
-        transcriptRnaMousebrains = null;
-        proteinatlas = null;
     }
 }

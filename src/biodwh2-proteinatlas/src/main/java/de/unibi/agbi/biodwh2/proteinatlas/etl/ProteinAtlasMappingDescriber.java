@@ -9,25 +9,21 @@ public class ProteinAtlasMappingDescriber extends MappingDescriber {
         super(dataSource);
     }
 
-    // WIP
     @Override
     public NodeMappingDescription[] describe(final Graph graph, final Node node, final String localMappingLabel) {
         return null;
     }
 
-    // WIP
-    @Override
-    protected String[] getNodeMappingLabels() {
-        return new String[0];
-    }
-
-    // WIP
     @Override
     public PathMappingDescription describe(final Graph graph, final Node[] nodes, final Edge[] edges) {
         return null;
     }
 
-    // WIP
+    @Override
+    protected String[] getNodeMappingLabels() {
+        return new String[0];
+    }
+
     @Override
     protected PathMapping[] getEdgePathMappings() {
         return new PathMapping[0];

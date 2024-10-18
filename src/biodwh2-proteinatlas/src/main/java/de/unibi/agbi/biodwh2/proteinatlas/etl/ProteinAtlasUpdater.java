@@ -24,9 +24,7 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
             "rna_mouse_brain_sample_hpa.tsv.zip", "rna_mouse_brain_allen.tsv.zip", "rna_immune_cell.tsv.zip",
             "rna_immune_cell_sample.tsv.zip", "rna_immune_cell_monaco.tsv.zip", "rna_immune_cell_schmiedel.tsv.zip",
             "rna_celline_cancer.tsv.zip", "rna_celline.tsv.zip", "rna_celline_description.tsv.zip",
-            "rna_cancer_sample.tsv.zip", "transcript_rna_tissue.tsv.zip", "transcript_rna_brain.tsv.zip",
-            "transcript_rna_gtexretina.tsv.zip", "transcript_rna_immunecells.tsv.zip",
-            "transcript_rna_pigbrain.tsv.zip", "transcript_rna_mousebrain.tsv.zip", "proteinatlas.tsv.zip"
+            "rna_cancer_sample.tsv.zip"
     };
 
     static final String NORMAL_TISSUE_FILE_NAME = "normal_tissue.tsv.zip";
@@ -62,16 +60,6 @@ public class ProteinAtlasUpdater extends Updater<ProteinAtlasDataSource> {
     static final String RNA_CELLINE_DESCRIPTION_FILE_NAME = "rna_celline_description.tsv.zip";
     static final String RNA_CANCER_SAMPLE_ZIP_FILE_NAME = "rna_cancer_sample.tsv.zip";
     static final String RNA_CANCER_SAMPLE_TARGET_FILE_NAME = "rna_cancer_sample_109.tsv";
-    // TODO: Do this at the end.
-    static final String TRANSCRIPT_RNA_TISSUE_FILE_NAME = "transcript_rna_tissue.tsv.zip";
-    static final String TRANSCRIPT_RNA_BRAIN_ZIP_FILE_NAME = "transcript_rna_brain.tsv.zip";
-    static final String TRANSCRIPT_RNA_BRAIN_TARGET_FILE_NAME = "transcript_rna_brain.tsv";
-    static final String TRANSCRIPT_RNA_GTEX_RETINA_FILE_NAME = "transcript_rna_gtexretina.tsv.zip";
-    static final String TRANSCRIPT_RNA_IMMUNE_CELLS_FILE_NAME = "transcript_rna_immunecells.tsv.zip";
-    static final String TRANSCRIPT_RNA_PIG_BRAIN_FILE_NAME = "transcript_rna_pigbrain.tsv.zip";
-    static final String TRANSCRIPT_RNA_MOUSE_BRAIN_FILE_NAME = "transcript_rna_mousebrain.tsv.zip";
-
-    static final String PROTEIN_ATLAS_FILE_NAME = "proteinatlas.tsv.zip";
 
 
     public ProteinAtlasUpdater(ProteinAtlasDataSource dataSource) {
