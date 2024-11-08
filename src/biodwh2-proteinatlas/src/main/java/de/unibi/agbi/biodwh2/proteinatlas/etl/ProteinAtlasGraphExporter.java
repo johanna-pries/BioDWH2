@@ -77,36 +77,36 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
         graph.addIndex(IndexDescription.forNode(GENE_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
         graph.addIndex(IndexDescription.forNode(CELL_LINE_LABEL, ID_KEY, IndexDescription.Type.UNIQUE));
 
-        addNormalTissues(workspace, graph);                       //very slow
-        addPathologies(workspace, graph);                         //fast
-        addRnaBrainFantoms(workspace, graph);                     //fast
-        addRnaBrainGtexes(workspace, graph);                      //fast
-        addRnaBrainHpas(workspace, graph);                        //very slow
-        addRnaCancerSamples(workspace, graph);                    //fast
-        addRnaCellines(workspace, graph);                         //fast
-        addRnaCellineCancers(workspace, graph);                   //fast
-        addRnaCellineDescriptions(workspace, graph);              //very fast
-        addRnaImmuneCells(workspace, graph);                      //fast
-        addRnaImmuneCellMonacos(workspace, graph);                //fast
-        addRnaImmuneCellSamples(workspace, graph);                //very fast
-        addRnaImmuneCellSchmiedels(workspace, graph);             //fast
-        addRnaMouseBrainAllens(workspace, graph);                 //fast
-        addRnaMouseBrainHpas(workspace, graph);                   //fast
-        addRnaMouseBrainMouseSamples(workspace, graph);           //slow
-        addRnaMouseBrainSampleHpas(workspace, graph);             //slow
-        addRnaPfcBrainHpas(workspace, graph);                     //fast
-        addRnaPigBrainHpas(workspace, graph);                     //fast
-        addRnaPigBrainSampleHpas(workspace, graph);               //very slow
-        addRnaPigBrainPigSamples(workspace, graph);               //very slow
-        addRnaSingleCellClusterDescriptions(workspace, graph);    //very fast
-        addRnaSingleCellTypes(workspace, graph);                  //very slow
-        addRnaSingleCellTypeTissues(workspace, graph);            //very slow
-        addRnaTissueConsensuses(workspace, graph);                //slow
-        addRnaTissueFantoms(workspace, graph);                    //slow
-        addRnaTissueGtexes(workspace, graph);                     //fast
-        addRnaTissueHpas(workspace, graph);                       //fast
-        addRnaTissueHpaDescription(workspace, graph);             //very fast
-        addSubcellularLocations(workspace, graph);                //very fast
+        addNormalTissues(workspace, graph);
+        addPathologies(workspace, graph);
+        addRnaBrainFantoms(workspace, graph);
+        addRnaBrainGtexes(workspace, graph);
+        addRnaBrainHpas(workspace, graph);
+        addRnaCancerSamples(workspace, graph);
+        addRnaCellines(workspace, graph);
+        addRnaCellineCancers(workspace, graph);
+        addRnaCellineDescriptions(workspace, graph);
+        addRnaImmuneCells(workspace, graph);
+        addRnaImmuneCellMonacos(workspace, graph);
+        addRnaImmuneCellSamples(workspace, graph);
+        addRnaImmuneCellSchmiedels(workspace, graph);
+        addRnaMouseBrainAllens(workspace, graph);
+        addRnaMouseBrainHpas(workspace, graph);
+        addRnaMouseBrainMouseSamples(workspace, graph);
+        addRnaMouseBrainSampleHpas(workspace, graph);
+        addRnaPfcBrainHpas(workspace, graph);
+        addRnaPigBrainHpas(workspace, graph);
+        addRnaPigBrainSampleHpas(workspace, graph);
+        addRnaPigBrainPigSamples(workspace, graph);
+        addRnaSingleCellClusterDescriptions(workspace, graph);
+        addRnaSingleCellTypes(workspace, graph);
+        addRnaSingleCellTypeTissues(workspace, graph);
+        addRnaTissueConsensuses(workspace, graph);
+        addRnaTissueFantoms(workspace, graph);
+        addRnaTissueGtexes(workspace, graph);
+        addRnaTissueHpas(workspace, graph);
+        addRnaTissueHpaDescription(workspace, graph);
+        addSubcellularLocations(workspace, graph);
 
         return true;
     }
