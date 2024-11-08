@@ -668,7 +668,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Long subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaMouseBrainMouseSample.subregion.toLowerCase(),
                                                        brainRegionNodeIdMap);
-            // TODO: Maybe rename node label?
             final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL);
             if (rnaMouseBrainMouseSample.animal != null) {
                 // Examples: "female 1" or "male 2".
@@ -703,7 +702,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Long subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaMouseBrainSampleHpa.subregion.toLowerCase(),
                                                        brainRegionNodeIdMap);
-            // TODO: Maybe rename node label?
             final Node mouseDataNode = graph.addNode(MOUSE_DATA_LABEL);
             if (rnaMouseBrainSampleHpa.animal != null) {
                 // Examples: "F 1" or "M 2".
@@ -783,7 +781,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Long subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaPigBrainSampleHpa.subregion.toLowerCase(),
                                                        brainRegionNodeIdMap);
-            // TODO: Maybe rename node label?
             final Node pigDataNode = graph.addNode(PIG_DATA_LABEL);
             if (rnaPigBrainSampleHpa.animal != null) {
                 // Examples: "F 1" or "M 2".
@@ -821,7 +818,6 @@ public class ProteinAtlasGraphExporter extends GraphExporter<ProteinAtlasDataSou
             final Long subRegionNode = getOrCreateNode(graph, BRAIN_REGION_LABEL, "name",
                                                        rnaPigBrainPigSample.subregion.toLowerCase(),
                                                        brainRegionNodeIdMap);
-            // TODO: Maybe rename node label?
             final Node pigDataNode = graph.addNode(PIG_DATA_LABEL);
             if (rnaPigBrainPigSample.animal != null) {
                 // Examples: "female 1" or "male 2".
